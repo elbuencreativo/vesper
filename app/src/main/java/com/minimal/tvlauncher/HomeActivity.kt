@@ -43,7 +43,22 @@ fun HomeScreen() {
         }
     }
     val format = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
+    // SPIKE TEMPORAL (Task 2): lista Watch Next; se elimina en la Task 5.
+    val context = androidx.compose.ui.platform.LocalContext.current
+    var spike by remember { mutableStateOf<List<com.minimal.tvlauncher.data.WatchNextItem>?>(null) }
+    LaunchedEffect(Unit) {
+        val items = com.minimal.tvlauncher.data.WatchNextRepository(context).load()
+        android.util.Log.d("WatchNextSpike", "filas=${items.size}")
+        items.forEach { android.util.Log.d("WatchNextSpike", "${it.packageName} | ${it.title} | ${it.progress}") }
+        spike = items
+    }
     Box(Modifier.fillMaxSize().background(Color(0xFF0B0B0D))) {
+        Text(
+            text = spike?.joinToString("\n") { "${it.packageName} · ${it.title}" } ?: "cargando…",
+            color = Color(0xFFCFCFD4),
+            fontSize = 14.sp,
+            modifier = Modifier.align(Alignment.CenterStart).padding(start = 48.dp),
+        )
         Text(
             text = format.format(now),
             color = Color(0xFFCFCFD4),
