@@ -31,6 +31,8 @@ run() {
 }
 
 run adb connect "$TARGET"
+# TV Launcher necesita que el home de Google TV esté deshabilitado; hay que reactivarlo antes de ceder el rol.
+run adb -s "$TARGET" shell pm enable --user 0 com.google.android.apps.tv.launcherx
 run adb -s "$TARGET" shell cmd role add-role-holder --user 0 android.app.role.HOME "$HOME_PKG"
 run adb -s "$TARGET" shell input keyevent KEYCODE_HOME
 if [ "$KEEP" -eq 0 ]; then
