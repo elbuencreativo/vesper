@@ -15,6 +15,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.lifecycleScope
 import com.minimal.tvlauncher.actions.AppActions
 import com.minimal.tvlauncher.data.AppEntry
+import com.minimal.tvlauncher.ui.AllAppsScreen
 import com.minimal.tvlauncher.ui.ContinueCard
 import com.minimal.tvlauncher.ui.HomeScreen
 import com.minimal.tvlauncher.ui.IconCache
@@ -29,6 +30,7 @@ class HomeActivity : ComponentActivity() {
 
     /** Sube cada vez que se pulsa HOME estando ya aquí: reconstruye la pantalla y reinicia el foco. */
     private var homeTick by mutableIntStateOf(0)
+    private var showAll by mutableStateOf(false)
     private var message by mutableStateOf<String?>(null)
     private var messageJob: Job? = null
 
@@ -38,16 +40,28 @@ class HomeActivity : ComponentActivity() {
         setContent {
             CompositionLocalProvider(LocalIconCache provides remember { icons }) {
                 key(homeTick) {
-                    HomeScreen(
-                        apps = vm.apps,
-                        cards = vm.cards,
-                        onAction = { /* Task 8 / Task 11 */ },
-                        onCard = ::openCard,
-                        onLaunch = ::launch,
-                        onClose = ::close,
-                        onOpenAll = { /* Task 7 */ },
-                        message = message,
-                    )
+                    if (showAll) {
+                        AllAppsScreen(
+                            apps = vm.apps.all,
+                            hidden = vm.apps.hiddenEntries.mapTo(HashSet()) { it.packageName },
+                            onLaunch = ::launch,
+                            onSaveOrder = vm::saveOrder,
+                            onToggleHidden = vm::toggleHidden,
+                            onUninstall = actions::uninstall,
+                            onBack = { showAll = false },
+                        )
+                    } else {
+                        HomeScreen(
+                            apps = vm.apps,
+                            cards = vm.cards,
+                            onAction = { /* Task 8 / Task 11 */ },
+                            onCard = ::openCard,
+                            onLaunch = ::launch,
+                            onClose = ::close,
+                            onOpenAll = { showAll = true },
+                            message = message,
+                        )
+                    }
                 }
             }
         }
@@ -60,6 +74,7 @@ class HomeActivity : ComponentActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        showAll = false
         homeTick++
     }
 

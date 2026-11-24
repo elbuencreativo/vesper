@@ -49,7 +49,7 @@ fun FocusTile(
         modifier
             .graphicsLayer { scaleX = scale; scaleY = scale }
             .clip(shape)
-            .border(if (focused) 2.dp else 0.dp, Palette.Focus, shape)
+            .then(if (focused) Modifier.border(2.dp, Palette.Focus, shape) else Modifier)
             .onKeyEvent { e ->
                 val k = e.nativeKeyEvent
                 if (k.keyCode !in CONFIRM_KEYS) return@onKeyEvent false

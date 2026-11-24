@@ -3,6 +3,7 @@ package com.minimal.tvlauncher.ui
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -72,7 +73,9 @@ fun AppRow(
                     onFocusChange = { if (it) focusedLabel = "Todas las apps" },
                     onClick = onOpenAll,
                 ) { focused ->
-                    Canvas(Modifier.fillMaxSize().padding(16.dp)) {
+                    Canvas(
+                        Modifier.fillMaxSize().border(1.dp, Palette.Line, RoundedCornerShape(12.dp)).padding(16.dp),
+                    ) {
                         val c = if (focused) Palette.Text else Palette.TextMuted
                         val w = size.width
                         drawLine(c, Offset(0f, w / 2), Offset(w, w / 2), 2.5f, StrokeCap.Round)
@@ -104,7 +107,11 @@ private fun AppTile(
         onLongClick = onClose,
         onClick = onLaunch,
     ) { focused ->
-        Box(Modifier.fillMaxSize().background(Palette.Surface), contentAlignment = Alignment.Center) {
+        Box(
+            Modifier.fillMaxSize().background(Palette.Surface)
+                .border(1.dp, Palette.Line, RoundedCornerShape(12.dp)),
+            contentAlignment = Alignment.Center,
+        ) {
             icon?.let {
                 Image(
                     it, app.label, Modifier.size(30.dp),

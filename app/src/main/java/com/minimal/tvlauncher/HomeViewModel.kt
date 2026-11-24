@@ -41,6 +41,20 @@ class HomeViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    fun saveOrder(order: List<String>) {
+        viewModelScope.launch {
+            prefs.setOrder(order)
+            refresh()
+        }
+    }
+
+    fun toggleHidden(packageName: String) {
+        viewModelScope.launch {
+            prefs.setHidden(com.minimal.tvlauncher.data.toggleHidden(prefs.hidden.first(), packageName))
+            refresh()
+        }
+    }
+
     fun recordLaunch(packageName: String) {
         viewModelScope.launch { recents.record(packageName) }
     }
