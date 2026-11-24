@@ -1,6 +1,14 @@
 package com.minimal.tvlauncher.ui
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -26,7 +34,11 @@ fun HomeScreen(
     onLaunch: (AppEntry) -> Unit,
     onClose: (AppEntry) -> Unit,
     onOpenAll: () -> Unit,
+    message: String? = null,
 ) {
+    // Conserva el último texto para que el aviso no quede vacío mientras se desvanece.
+    val lastMessage = remember { androidx.compose.runtime.mutableStateOf("") }
+    if (message != null) lastMessage.value = message
     val cardFocus = remember { FocusRequester() }
     val appFocus = remember { FocusRequester() }
 
@@ -49,6 +61,19 @@ fun HomeScreen(
             }
             Spacer(Modifier.weight(1f))
             AppRow(apps.row, appFocus, onLaunch, onClose, onOpenAll, Modifier.padding(bottom = 24.dp))
+        }
+        AnimatedVisibility(
+            visible = message != null,
+            enter = fadeIn(tween(180)),
+            exit = fadeOut(tween(260)),
+            modifier = Modifier.align(Alignment.BottomEnd).padding(end = 48.dp, bottom = 40.dp),
+        ) {
+            Box(
+                Modifier.clip(RoundedCornerShape(20.dp)).background(Palette.Surface)
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+            ) {
+                Label(lastMessage.value, color = Palette.Text, size = 12.sp)
+            }
         }
     }
 }
