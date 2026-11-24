@@ -16,6 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
@@ -47,7 +48,7 @@ fun TopBar(onAction: (QuickAction) -> Unit, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun Clock(modifier: Modifier = Modifier) {
+fun Clock(modifier: Modifier = Modifier, color: Color = Palette.TextMuted) {
     var now by remember { mutableStateOf(Date()) }
     LaunchedEffect(Unit) {
         while (true) {
@@ -56,5 +57,5 @@ fun Clock(modifier: Modifier = Modifier) {
         }
     }
     val format = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
-    Label(format.format(now), modifier, Palette.TextMuted, 14.sp, letterSpacing = 1.sp)
+    Label(format.format(now), modifier, color, 14.sp, letterSpacing = 1.sp)
 }

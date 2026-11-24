@@ -5,28 +5,39 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.view.KeyEvent
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
 import com.minimal.tvlauncher.actions.AppActions
 import com.minimal.tvlauncher.actions.Shortcut
 import com.minimal.tvlauncher.actions.SystemShortcuts
-import com.minimal.tvlauncher.ui.QuickAction
 import com.minimal.tvlauncher.data.AppEntry
+import com.minimal.tvlauncher.data.ArtRepository
+import com.minimal.tvlauncher.idle.IdleController
+import com.minimal.tvlauncher.idle.IdleState
 import com.minimal.tvlauncher.ui.AllAppsScreen
 import com.minimal.tvlauncher.ui.ContinueCard
 import com.minimal.tvlauncher.ui.HomeScreen
 import com.minimal.tvlauncher.ui.IconCache
+import com.minimal.tvlauncher.ui.IdleScreen
 import com.minimal.tvlauncher.ui.LocalIconCache
+import com.minimal.tvlauncher.ui.QuickAction
+import com.minimal.tvlauncher.util.MonotonicClock
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -35,6 +46,8 @@ class HomeActivity : ComponentActivity() {
     private val vm: HomeViewModel by viewModels()
     private val actions by lazy { AppActions(this, vm.recents) }
     private val shortcuts by lazy { SystemShortcuts(this) }
+    private val art by lazy { ArtRepository(applicationContext) }
+    private lateinit var idle: IdleController
 
     // Tras responder al permiso se abre igual: si se negó, SystemShortcuts cae a los ajustes generales.
     private val bluetoothPermission =
@@ -48,34 +61,54 @@ class HomeActivity : ComponentActivity() {
     private var message by mutableStateOf<String?>(null)
     private var messageJob: Job? = null
 
+    /** Tecla que despertó el reposo: se descarta también su "soltar" (y repeticiones). */
+    private var swallowedKey = -1
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Solo en debug: `am start ... --el idle_ms 10000 --el dark_ms 20000` acorta los tiempos para probar.
+        val idleMs = if (BuildConfig.DEBUG) intent.getLongExtra("idle_ms", DEFAULT_IDLE_MS) else DEFAULT_IDLE_MS
+        val darkMs = if (BuildConfig.DEBUG) intent.getLongExtra("dark_ms", DEFAULT_DARK_MS) else DEFAULT_DARK_MS
+        idle = IdleController(lifecycleScope, MonotonicClock, idleMs, darkMs)
+
+        // La pantalla solo se mantiene encendida durante el arte; en negro el sistema puede dormir.
+        lifecycleScope.launch {
+            idle.state.collect { state ->
+                if (state == IdleState.Art) window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                else window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            }
+        }
+
         val icons = IconCache(applicationContext)
         setContent {
             CompositionLocalProvider(LocalIconCache provides remember { icons }) {
-                key(homeTick) {
-                    if (showAll) {
-                        AllAppsScreen(
-                            apps = vm.apps.all,
-                            hidden = vm.apps.hiddenEntries.mapTo(HashSet()) { it.packageName },
-                            onLaunch = ::launch,
-                            onSaveOrder = vm::saveOrder,
-                            onToggleHidden = vm::toggleHidden,
-                            onUninstall = actions::uninstall,
-                            onBack = { showAll = false },
-                        )
-                    } else {
-                        HomeScreen(
-                            apps = vm.apps,
-                            cards = vm.cards,
-                            onAction = ::quickAction,
-                            onCard = ::openCard,
-                            onLaunch = ::launch,
-                            onClose = ::close,
-                            onOpenAll = { showAll = true },
-                            message = message,
-                        )
+                val idleState by idle.state.collectAsState()
+                Box(Modifier.fillMaxSize()) {
+                    key(homeTick) {
+                        if (showAll) {
+                            AllAppsScreen(
+                                apps = vm.apps.all,
+                                hidden = vm.apps.hiddenEntries.mapTo(HashSet()) { it.packageName },
+                                onLaunch = ::launch,
+                                onSaveOrder = vm::saveOrder,
+                                onToggleHidden = vm::toggleHidden,
+                                onUninstall = actions::uninstall,
+                                onBack = { showAll = false },
+                            )
+                        } else {
+                            HomeScreen(
+                                apps = vm.apps,
+                                cards = vm.cards,
+                                onAction = ::quickAction,
+                                onCard = ::openCard,
+                                onLaunch = ::launch,
+                                onClose = ::close,
+                                onOpenAll = { showAll = true },
+                                message = message,
+                            )
+                        }
                     }
+                    IdleScreen(idleState, art)
                 }
             }
         }
@@ -83,13 +116,36 @@ class HomeActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
+        idle.onLauncherResumed()
         vm.refresh()
+    }
+
+    override fun onPause() {
+        idle.onLauncherPaused()
+        window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        super.onPause()
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        idle.onUserInput()
         showAll = false
         homeTick++
+    }
+
+    /** La primera pulsación que despierta el reposo solo despierta; no actúa sobre la interfaz. */
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        when (event.action) {
+            KeyEvent.ACTION_DOWN -> {
+                if (idle.onUserInput() && event.repeatCount == 0) swallowedKey = event.keyCode
+                if (event.keyCode == swallowedKey) return true
+            }
+            KeyEvent.ACTION_UP -> if (event.keyCode == swallowedKey) {
+                swallowedKey = -1
+                return true
+            }
+        }
+        return super.dispatchKeyEvent(event)
     }
 
     private fun quickAction(action: QuickAction) {
@@ -141,5 +197,10 @@ class HomeActivity : ComponentActivity() {
             delay(1800)
             message = null
         }
+    }
+
+    private companion object {
+        const val DEFAULT_IDLE_MS = 300_000L
+        const val DEFAULT_DARK_MS = 1_200_000L
     }
 }
