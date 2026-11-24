@@ -91,8 +91,7 @@ private fun ContinueCardView(card: ContinueCard, onClick: () -> Unit, modifier: 
                 Image(
                     it, null,
                     Modifier.size(34.dp).align(Alignment.Center),
-                    alpha = if (focused) 0.95f else 0.55f,
-                    colorFilter = if (focused) null else WarmMonochrome,
+                    alpha = 0.95f,
                 )
             }
             Box(

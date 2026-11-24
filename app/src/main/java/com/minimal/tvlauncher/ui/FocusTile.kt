@@ -43,7 +43,7 @@ fun FocusTile(
     content: @Composable BoxScope.(focused: Boolean) -> Unit,
 ) {
     var focused by remember { mutableStateOf(false) }
-    var longFired by remember { mutableStateOf(false) }
+    val press = remember { OkPressTracker() }
     val scale by animateFloatAsState(if (focused) 1.08f else 1f, tween(140), label = "tileScale")
 
     Box(
@@ -61,17 +61,11 @@ fun FocusTile(
                 if (k.keyCode !in CONFIRM_KEYS) return@onKeyEvent false
                 when (e.type) {
                     KeyEventType.KeyDown -> {
-                        if (k.repeatCount == 0) {
-                            longFired = false
-                        } else if (!longFired && onLongClick != null && k.isLongPress) {
-                            longFired = true
-                            onLongClick()
-                        }
+                        if (press.onDown(k.repeatCount, k.isLongPress, onLongClick != null)) onLongClick?.invoke()
                         true
                     }
                     KeyEventType.KeyUp -> {
-                        if (!longFired) onClick()
-                        longFired = false
+                        if (press.onUp()) onClick()
                         true
                     }
                     else -> false

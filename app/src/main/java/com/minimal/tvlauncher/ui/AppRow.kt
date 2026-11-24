@@ -108,6 +108,6 @@ private fun AppTile(
         onClick = onLaunch,
     ) { focused ->
         // El marco redondeado se pinta del color de fondo del icono: una sola pieza, sin doble marco.
-        AppIconBox(icon, lit = focused, modifier = Modifier.fillMaxSize().border(1.dp, Palette.Line, RoundedCornerShape(12.dp)))
+        AppIconBox(icon, modifier = Modifier.fillMaxSize().border(1.dp, Palette.Line, RoundedCornerShape(12.dp)))
     }
 }

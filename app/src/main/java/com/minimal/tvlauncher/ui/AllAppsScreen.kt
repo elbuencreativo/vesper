@@ -245,7 +245,7 @@ private fun GridApp(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
-            AppIconBox(icon, lit = lit, dimmed = dimmed, modifier = Modifier.size(42.dp).clip(RoundedCornerShape(11.dp)))
+            AppIconBox(icon, dimmed = dimmed, modifier = Modifier.size(42.dp).clip(RoundedCornerShape(11.dp)))
             Spacer(Modifier.height(6.dp))
             Label(
                 app.label, Modifier.padding(horizontal = 6.dp),

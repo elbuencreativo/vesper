@@ -12,24 +12,23 @@ import androidx.compose.ui.graphics.lerp
 
 /**
  * Icono de app sobre un fondo del color de su borde: así el marco redondeado y el icono cuadrado se
- * funden en una sola pieza (sin doble marco). Sin foco va en monocromo cálido; con foco, a todo color.
+ * funden en una sola pieza (sin doble marco), con o sin foco. Solo los apps ocultos van apagados.
  * El recorte redondeado lo pone quien lo usa (FocusTile o clip).
  */
 @Composable
-fun AppIconBox(icon: AppIcon?, lit: Boolean, modifier: Modifier = Modifier, dimmed: Boolean = false) {
-    val fullColor = lit && !dimmed
+fun AppIconBox(icon: AppIcon?, modifier: Modifier = Modifier, dimmed: Boolean = false) {
     val edge = icon?.edge
     val base = when {
         edge == null -> Palette.Surface
-        fullColor -> Color(edge)
-        else -> lerp(Color(warmMono(edge)), Palette.Surface, 0.45f) // sin foco: más apagado
+        dimmed -> lerp(Color(warmMono(edge)), Palette.Surface, 0.45f)
+        else -> Color(edge)
     }
     Box(modifier.background(if (dimmed) base.copy(alpha = 0.45f) else base), contentAlignment = Alignment.Center) {
         icon?.let {
             Image(
                 it.image, null, Modifier.fillMaxSize(0.72f),
-                alpha = if (dimmed) 0.3f else if (lit) 1f else 0.88f,
-                colorFilter = if (fullColor) null else WarmMonochrome,
+                alpha = if (dimmed) 0.3f else 1f,
+                colorFilter = if (dimmed) WarmMonochrome else null,
             )
         }
     }
