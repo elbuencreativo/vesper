@@ -1,8 +1,12 @@
 package com.minimal.tvlauncher
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.runtime.CompositionLocalProvider
@@ -14,6 +18,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.lifecycleScope
 import com.minimal.tvlauncher.actions.AppActions
+import com.minimal.tvlauncher.actions.Shortcut
+import com.minimal.tvlauncher.actions.SystemShortcuts
+import com.minimal.tvlauncher.ui.QuickAction
 import com.minimal.tvlauncher.data.AppEntry
 import com.minimal.tvlauncher.ui.AllAppsScreen
 import com.minimal.tvlauncher.ui.ContinueCard
@@ -27,6 +34,13 @@ import kotlinx.coroutines.launch
 class HomeActivity : ComponentActivity() {
     private val vm: HomeViewModel by viewModels()
     private val actions by lazy { AppActions(this, vm.recents) }
+    private val shortcuts by lazy { SystemShortcuts(this) }
+
+    // Tras responder al permiso se abre igual: si se negó, SystemShortcuts cae a los ajustes generales.
+    private val bluetoothPermission =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+            shortcuts.open(Shortcut.Bluetooth)
+        }
 
     /** Sube cada vez que se pulsa HOME estando ya aquí: reconstruye la pantalla y reinicia el foco. */
     private var homeTick by mutableIntStateOf(0)
@@ -54,7 +68,7 @@ class HomeActivity : ComponentActivity() {
                         HomeScreen(
                             apps = vm.apps,
                             cards = vm.cards,
-                            onAction = { /* Task 8 / Task 11 */ },
+                            onAction = ::quickAction,
                             onCard = ::openCard,
                             onLaunch = ::launch,
                             onClose = ::close,
@@ -76,6 +90,25 @@ class HomeActivity : ComponentActivity() {
         super.onNewIntent(intent)
         showAll = false
         homeTick++
+    }
+
+    private fun quickAction(action: QuickAction) {
+        val shortcut = when (action) {
+            QuickAction.Wifi -> Shortcut.Wifi
+            QuickAction.Bluetooth -> {
+                // La pantalla de accesorios de Google TV exige BLUETOOTH_CONNECT (Android 12+).
+                if (Build.VERSION.SDK_INT >= 31 &&
+                    checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    bluetoothPermission.launch(Manifest.permission.BLUETOOTH_CONNECT)
+                    return
+                }
+                Shortcut.Bluetooth
+            }
+            QuickAction.AndroidSettings -> Shortcut.AndroidSettings
+            QuickAction.LauncherSettings -> return // Task 11
+        }
+        if (!shortcuts.open(shortcut)) flash("No se pudo abrir los ajustes")
     }
 
     private fun launch(entry: AppEntry) {
