@@ -34,6 +34,8 @@ fun HomeScreen(
     onLaunch: (AppEntry) -> Unit,
     onClose: (AppEntry) -> Unit,
     onOpenAll: () -> Unit,
+    onManage: () -> Unit,
+    homeKeyActive: Boolean,
     message: String? = null,
 ) {
     // Conserva el último texto para que el aviso no quede vacío mientras se desvanece.
@@ -51,13 +53,13 @@ fun HomeScreen(
 
     Box(Modifier.fillMaxSize()) {
         Column(Modifier.fillMaxSize()) {
-            TopBar(onAction, Modifier.padding(start = 48.dp, end = 48.dp, top = 32.dp))
+            TopBar(onAction, Modifier.padding(start = 48.dp, end = 48.dp, top = 32.dp), attention = !homeKeyActive)
             // "Seguir viendo" va pegado a la fila de apps, abajo, no arriba.
             Spacer(Modifier.weight(1f))
             if (cards.isNotEmpty()) {
                 ContinueRow(cards, cardFocus, onCard)
             }
-            AppRow(apps.row, appFocus, onLaunch, onClose, onOpenAll, Modifier.padding(bottom = 14.dp))
+            AppRow(apps.row, appFocus, onLaunch, onClose, onOpenAll, onManage, Modifier.padding(bottom = 14.dp))
         }
         AnimatedVisibility(
             visible = message != null,

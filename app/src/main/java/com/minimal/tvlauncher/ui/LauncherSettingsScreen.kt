@@ -27,6 +27,8 @@ fun LauncherSettingsScreen(
     versionName: String,
     onUnhideAll: () -> Unit,
     onChooseHome: () -> Unit,
+    homeKeyActive: Boolean,
+    onFixHomeKey: () -> Unit,
     updateStatus: String?,
     updateVersion: String?,
     updateBusy: Boolean,
@@ -56,6 +58,15 @@ fun LauncherSettingsScreen(
                 if (hiddenCount > 0) "Mostrar apps ocultas ($hiddenCount)" else "No hay apps ocultas",
                 onUnhideAll,
             )
+            if (homeKeyActive) {
+                Label("Botón HOME: activo", Modifier.padding(horizontal = 14.dp, vertical = 6.dp), Palette.TextMuted, 11.sp)
+            } else {
+                MenuItem("Activar el botón HOME", onFixHomeKey)
+                Label(
+                    "Inactivo: HOME no abre este launcher. Android lo apaga si se fuerza el cierre del app; actívalo en Accesibilidad.",
+                    Modifier.padding(horizontal = 14.dp), Palette.Accent, 11.sp, maxLines = 3,
+                )
+            }
             MenuItem("Volver al launcher original", onChooseHome)
             Spacer(Modifier.height(24.dp))
             Label("TV Launcher $versionName", color = Palette.TextMuted, size = 10.sp)

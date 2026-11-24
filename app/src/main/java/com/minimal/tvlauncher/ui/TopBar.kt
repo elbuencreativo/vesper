@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
@@ -27,7 +28,8 @@ import java.util.Date
 import java.util.Locale
 
 @Composable
-fun TopBar(onAction: (QuickAction) -> Unit, modifier: Modifier = Modifier) {
+/** [attention]: marca con un punto el acceso a los ajustes del launcher (p. ej. el botón HOME está inactivo). */
+fun TopBar(onAction: (QuickAction) -> Unit, modifier: Modifier = Modifier, attention: Boolean = false) {
     Row(
         modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
@@ -43,6 +45,12 @@ fun TopBar(onAction: (QuickAction) -> Unit, modifier: Modifier = Modifier) {
                         contentAlignment = Alignment.Center,
                     ) {
                         QuickIcon(action, if (focused) Palette.Accent else Palette.TextMuted, 15.dp)
+                        if (attention && action == QuickAction.LauncherSettings) {
+                            Box(
+                                Modifier.align(Alignment.TopEnd).padding(2.dp).size(8.dp)
+                                    .background(Palette.Accent, CircleShape),
+                            )
+                        }
                     }
                 }
             }

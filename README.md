@@ -31,6 +31,8 @@ adb -s IP:PUERTO shell settings put secure enabled_accessibility_services com.mi
 adb -s IP:PUERTO shell settings put secure accessibility_enabled 1
 ```
 
+**Importante:** si fuerzas el cierre de TV Launcher (Configuración > Apps > Forzar detención, o `adb shell am force-stop`), Android apaga este servicio y HOME deja de abrir el launcher. Cuando eso pasa aparece un punto ámbar sobre el icono ◐ y en sus ajustes un botón "Activar el botón HOME".
+
 Para desactivarlo: Configuración > Accesibilidad, o `adb shell settings delete secure enabled_accessibility_services`.
 
 ## Volver al launcher anterior
@@ -64,7 +66,7 @@ Déjalo corriendo mientras la TV busca y descarga; detenlo con Ctrl-C. La actual
 ## Controles
 
 - **OK** abre; **mantener OK** en un app de la fila abre su pantalla de información (Forzar detención).
-- **＋** abre todas las apps en tres secciones: **Favoritos** (los de la pantalla de inicio, máximo 10), **Todas las apps** y **Ocultas**. **Mantén OK** sobre un app para moverlo, agregarlo o quitarlo de favoritos, ocultarlo o desinstalarlo.
+- **＋** abre todas las apps en tres secciones: **Favoritos** (los de la pantalla de inicio, máximo 10), **Todas las apps** y **Ocultas**. En el inicio, **mantén OK sobre ＋** para ordenar los favoritos o administrar las apps. **Mantén OK** sobre un app para moverlo, agregarlo o quitarlo de favoritos, ocultarlo o desinstalarlo.
 - Sin tocar el control 5 min entra el reposo; tras 20 min de arte la pantalla queda en negro. Cualquier botón vuelve al inicio.
 
 ## Cambiar las obras del reposo

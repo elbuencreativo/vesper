@@ -11,7 +11,7 @@ sealed interface Target {
     data class ByAction(override val action: String) : Target
 }
 
-enum class Shortcut { Wifi, Bluetooth, AndroidSettings, ChooseHome }
+enum class Shortcut { Wifi, Bluetooth, AndroidSettings, ChooseHome, Accessibility }
 
 private val GENERAL_SETTINGS = Target.ByAction("android.settings.SETTINGS")
 
@@ -29,6 +29,7 @@ fun targetsFor(shortcut: Shortcut): List<Target> = when (shortcut) {
         GENERAL_SETTINGS,
     )
     Shortcut.AndroidSettings -> listOf(GENERAL_SETTINGS)
+    Shortcut.Accessibility -> listOf(Target.ByAction("android.settings.ACCESSIBILITY_SETTINGS"), GENERAL_SETTINGS)
     // "App de inicio predeterminada": lista real de launchers (verificado en el Onn).
     Shortcut.ChooseHome -> listOf(Target.ByAction("android.settings.HOME_SETTINGS"), GENERAL_SETTINGS)
 }

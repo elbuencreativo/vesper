@@ -23,6 +23,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -70,6 +71,7 @@ fun AllAppsScreen(
     onToggleHidden: (String) -> Unit,
     onUninstall: (String) -> Unit,
     onBack: () -> Unit,
+    reorderFavorites: Boolean = false,
 ) {
     val favorites = remember(apps) { apps.row.mapTo(HashSet()) { it.packageName } }
     val hidden = remember(apps) { apps.hiddenEntries.mapTo(HashSet()) { it.packageName } }
@@ -78,7 +80,8 @@ fun AllAppsScreen(
     var movingPkg by remember { mutableStateOf<String?>(null) }
     var notice by remember { mutableStateOf<String?>(null) }
     val gridState = rememberLazyGridState()
-    val firstFocus = remember { FocusRequester() }
+    val requesters = remember { mutableMapOf<String, FocusRequester>() }
+    var lastFocusedPkg by remember { mutableStateOf<String?>(null) }
 
     fun sectionOf(app: AppEntry) = when {
         app.packageName in hidden -> Section.Hidden
@@ -109,10 +112,15 @@ fun AllAppsScreen(
         }
     }
 
-    // El foco inicial va al primer app (la lista se compone tras el primer fotograma: se reintenta).
-    LaunchedEffect(firstApp?.app?.packageName) {
+    // El foco inicial va al primer app y, tras cada recarga de la lista (por ejemplo al volver de desinstalar,
+    // cuando el app enfocado ya no existe), vuelve al último enfocado o, si desapareció, al primero.
+    LaunchedEffect(apps) {
+        if (menuFor != null || movingPkg != null) return@LaunchedEffect
+        val present = entries.filterIsInstance<GridEntry.AppItem>().map { it.app.packageName }
+        val target = lastFocusedPkg?.takeIf { it in present } ?: present.firstOrNull()
         repeat(8) {
-            if (runCatching { firstFocus.requestFocus() }.isSuccess) return@LaunchedEffect
+            val requester = target?.let { requesters[it] }
+            if (requester != null && runCatching { requester.requestFocus() }.isSuccess) return@LaunchedEffect
             delay(60)
         }
     }
@@ -163,6 +171,7 @@ fun AllAppsScreen(
                 Spacer(Modifier.width(24.dp))
                 Label(
                     notice ?: if (movingPkg != null) "Mover: usa las flechas y pulsa OK para soltar"
+                    else if (reorderFavorites) "Ordenar favoritos: elige uno con OK, muévelo con las flechas y suéltalo con OK. Atrás para terminar"
                     else "Mantén OK sobre un app para ver sus opciones",
                     color = if (notice != null) Palette.Accent else Palette.TextMuted, size = 11.sp,
                 )
@@ -186,14 +195,29 @@ fun AllAppsScreen(
                             entry.title, Modifier.padding(top = 10.dp),
                             Palette.Accent.copy(alpha = 0.85f), 10.sp, letterSpacing = 2.sp,
                         )
-                        is GridEntry.AppItem -> GridApp(
-                            app = entry.app,
-                            dimmed = entry.section == Section.Hidden,
-                            grabbed = entry.app.packageName == movingPkg,
-                            onClick = { onLaunch(entry.app) },
-                            onLongClick = { menuFor = entry.app },
-                            modifier = if (entry == firstApp) Modifier.focusRequester(firstFocus) else Modifier,
-                        )
+                        is GridEntry.AppItem -> {
+                            val pkg = entry.app.packageName
+                            val requester = remember(pkg) { FocusRequester() }
+                            DisposableEffect(pkg) {
+                                requesters[pkg] = requester
+                                onDispose { requesters.remove(pkg) }
+                            }
+                            GridApp(
+                                app = entry.app,
+                                dimmed = entry.section == Section.Hidden,
+                                grabbed = pkg == movingPkg,
+                                onClick = {
+                                    when {
+                                        !reorderFavorites -> onLaunch(entry.app)
+                                        entry.section == Section.Favorites -> movingPkg = pkg
+                                        else -> notice = "Aquí solo se ordenan los favoritos"
+                                    }
+                                },
+                                onLongClick = { menuFor = entry.app },
+                                onFocused = { lastFocusedPkg = pkg },
+                                modifier = Modifier.focusRequester(requester),
+                            )
+                        }
                     }
                 }
             }
@@ -230,12 +254,14 @@ private fun GridApp(
     grabbed: Boolean,
     onClick: () -> Unit,
     onLongClick: () -> Unit,
+    onFocused: () -> Unit,
     modifier: Modifier,
 ) {
     val icons = LocalIconCache.current
     val icon by produceState<AppIcon?>(null, app.packageName) { value = icons.getAppIcon(app.packageName) }
     FocusTile(
         RoundedCornerShape(12.dp), modifier.fillMaxWidth().height(86.dp),
+        onFocusChange = { if (it) onFocused() },
         onLongClick = onLongClick, onClick = onClick,
     ) { focused ->
         val lit = focused || grabbed
@@ -245,7 +271,7 @@ private fun GridApp(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
-            AppIconBox(icon, dimmed = dimmed, modifier = Modifier.size(42.dp).clip(RoundedCornerShape(11.dp)))
+            AppIconBox(icon, lit = lit, dimmed = dimmed, modifier = Modifier.size(42.dp).clip(RoundedCornerShape(11.dp)))
             Spacer(Modifier.height(6.dp))
             Label(
                 app.label, Modifier.padding(horizontal = 6.dp),

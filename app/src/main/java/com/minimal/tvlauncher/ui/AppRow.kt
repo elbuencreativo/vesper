@@ -47,6 +47,7 @@ fun AppRow(
     onLaunch: (AppEntry) -> Unit,
     onClose: (AppEntry) -> Unit,
     onOpenAll: () -> Unit,
+    onManage: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var focusedLabel by remember { mutableStateOf("") }
@@ -70,6 +71,7 @@ fun AppRow(
                 FocusTile(
                     RoundedCornerShape(12.dp), Modifier.size(48.dp),
                     onFocusChange = { if (it) focusedLabel = "Todas las apps" },
+                    onLongClick = onManage,
                     onClick = onOpenAll,
                 ) { focused ->
                     Canvas(
@@ -108,6 +110,6 @@ private fun AppTile(
         onClick = onLaunch,
     ) { focused ->
         // El marco redondeado se pinta del color de fondo del icono: una sola pieza, sin doble marco.
-        AppIconBox(icon, modifier = Modifier.fillMaxSize().border(1.dp, Palette.Line, RoundedCornerShape(12.dp)))
+        AppIconBox(icon, lit = focused, modifier = Modifier.fillMaxSize().border(1.dp, Palette.Line, RoundedCornerShape(12.dp)))
     }
 }

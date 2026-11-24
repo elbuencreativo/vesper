@@ -19,6 +19,17 @@ fun homeKeyDecision(keyCode: Int, action: Int): HomeKeyDecision = when {
 }
 
 /**
+ * ¿Está activo el servicio? [enabledServices] es el valor de Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+ * (componentes separados por ':'). Android lo apaga si se fuerza el cierre del app; por eso se muestra su estado.
+ */
+fun isHomeKeyServiceEnabled(enabledServices: String?, packageName: String): Boolean {
+    if (enabledServices.isNullOrBlank()) return false
+    val full = "$packageName/$packageName.actions.HomeKeyService"
+    val short = "$packageName/.actions.HomeKeyService"
+    return enabledServices.split(':').any { it.equals(full, ignoreCase = true) || it.equals(short, ignoreCase = true) }
+}
+
+/**
  * En Google TV la tecla HOME puede no pasar por el filtro de teclas: el sistema abre el home de Google.
  * Entonces se detecta que esa pantalla apareció y se redirige a TV Launcher. [suppressUntil] pausa la
  * redirección (el salvavidas de arranque cede al home de Google y no debe rebotar).

@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.view.KeyEvent
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
@@ -25,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
 import com.minimal.tvlauncher.actions.AppActions
 import com.minimal.tvlauncher.actions.HomeKeyService
+import com.minimal.tvlauncher.actions.isHomeKeyServiceEnabled
 import com.minimal.tvlauncher.actions.STOCK_HOME_PACKAGE
 import com.minimal.tvlauncher.actions.Shortcut
 import com.minimal.tvlauncher.actions.SystemShortcuts
@@ -39,6 +41,7 @@ import com.minimal.tvlauncher.ui.HomeScreen
 import com.minimal.tvlauncher.ui.IconCache
 import com.minimal.tvlauncher.ui.IdleScreen
 import com.minimal.tvlauncher.ui.LauncherSettingsScreen
+import com.minimal.tvlauncher.ui.OptionsMenu
 import com.minimal.tvlauncher.ui.LocalIconCache
 import com.minimal.tvlauncher.ui.LocalPosterLoader
 import com.minimal.tvlauncher.ui.PosterLoader
@@ -69,6 +72,9 @@ class HomeActivity : ComponentActivity() {
     /** Sube cada vez que se pulsa HOME estando ya aquí: reconstruye la pantalla y reinicia el foco. */
     private var homeTick by mutableIntStateOf(0)
     private var screen by mutableStateOf(Screen.Home)
+    private var reorderFavorites by mutableStateOf(false)
+    private var homeMenu by mutableStateOf(false)
+    private var homeKeyActive by mutableStateOf(true)
     private var message by mutableStateOf<String?>(null)
     private var messageJob: Job? = null
 
@@ -108,6 +114,7 @@ class HomeActivity : ComponentActivity() {
                                 apps = vm.apps,
                                 onLaunch = ::launch,
                                 onSaveOrder = vm::saveOrder,
+                                reorderFavorites = reorderFavorites,
                                 onToggleFavorite = vm::toggleFavorite,
                                 onToggleHidden = vm::toggleHidden,
                                 onUninstall = actions::uninstall,
@@ -118,6 +125,8 @@ class HomeActivity : ComponentActivity() {
                                 versionName = BuildConfig.VERSION_NAME,
                                 onUnhideAll = vm::unhideAll,
                                 onChooseHome = { if (!shortcuts.open(Shortcut.ChooseHome)) flash("No se pudo abrir los ajustes") },
+                                homeKeyActive = homeKeyActive,
+                                onFixHomeKey = { if (!shortcuts.open(Shortcut.Accessibility)) flash("No se pudo abrir Accesibilidad") },
                                 updateStatus = vm.updateStatus,
                                 updateVersion = vm.availableUpdate?.versionName,
                                 updateBusy = vm.updateBusy,
@@ -132,10 +141,23 @@ class HomeActivity : ComponentActivity() {
                                 onCard = ::openCard,
                                 onLaunch = ::launch,
                                 onClose = ::close,
-                                onOpenAll = { screen = Screen.All },
+                                onOpenAll = { reorderFavorites = false; screen = Screen.All },
+                                onManage = { homeMenu = true },
+                                homeKeyActive = homeKeyActive,
                                 message = message,
                             )
                         }
+                    }
+                    if (homeMenu) {
+                        OptionsMenu(
+                            title = "Apps",
+                            options = listOf(
+                                "Ordenar favoritos" to { homeMenu = false; reorderFavorites = true; screen = Screen.All },
+                                "Administrar apps" to { homeMenu = false; reorderFavorites = false; screen = Screen.All },
+                                "Cancelar" to { homeMenu = false },
+                            ),
+                            onDismiss = { homeMenu = false },
+                        )
                     }
                     IdleScreen(idleState, art)
                 }
@@ -146,6 +168,9 @@ class HomeActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         idle.onLauncherResumed()
+        homeKeyActive = isHomeKeyServiceEnabled(
+            Settings.Secure.getString(contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES), packageName,
+        )
         vm.refresh()
     }
 
@@ -158,6 +183,8 @@ class HomeActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         idle.onUserInput()
+        homeMenu = false
+        reorderFavorites = false
         screen = Screen.Home
         homeTick++
     }
