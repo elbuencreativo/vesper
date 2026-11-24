@@ -20,7 +20,18 @@ adb connect 192.168.1.XX:PUERTO
 adb install -r app/build/outputs/apk/release/app-release.apk
 ```
 
-Luego elige TV Launcher en **Configuración > Apps > App de inicio predeterminada**, o pulsa HOME y elige "Siempre".
+Luego elige TV Launcher en **Configuración > Apps > App de inicio predeterminada**.
+
+### Que la tecla HOME abra TV Launcher
+
+En Google TV el home de Google tiene prioridad sobre cualquier launcher de terceros, así que el rol de inicio no basta. TV Launcher incluye un servicio de accesibilidad que captura solo la tecla HOME y abre el launcher (no lee la pantalla ni toca el home de Google). Actívalo una vez en **Configuración > Accesibilidad > TV Launcher · tecla HOME**, o por ADB:
+
+```bash
+adb -s IP:PUERTO shell settings put secure enabled_accessibility_services com.minimal.tvlauncher/com.minimal.tvlauncher.actions.HomeKeyService
+adb -s IP:PUERTO shell settings put secure accessibility_enabled 1
+```
+
+Para desactivarlo: Configuración > Accesibilidad, o `adb shell settings delete secure enabled_accessibility_services`.
 
 ## Volver al launcher anterior
 
@@ -33,6 +44,10 @@ tools/revert_home.sh 192.168.1.XX:PUERTO --home com.spocky.projengmenu --keep   
 ```
 
 Si el launcher falla 3 veces seguidas al arrancar, cede el control solo al home de Google TV.
+
+## Diseño
+
+Paleta de 10 tonos (azul noche a ámbar) en `ui/Theme.kt`, con roles tonales al estilo Material 3. Fondo permanente: una obra de la National Gallery bajo una capa de la paleta, que cambia cada 10 minutos. El foco es ámbar con resplandor naranja. Los iconos son monocromos cálidos y recuperan su color al enfocar.
 
 ## Controles
 

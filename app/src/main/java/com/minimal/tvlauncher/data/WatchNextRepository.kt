@@ -17,6 +17,7 @@ class WatchNextRepository(private val context: Context) {
             TvContractCompat.WatchNextPrograms.COLUMN_LAST_PLAYBACK_POSITION_MILLIS,
             TvContractCompat.WatchNextPrograms.COLUMN_DURATION_MILLIS,
             TvContractCompat.WatchNextPrograms.COLUMN_INTENT_URI,
+            TvContractCompat.WatchNextPrograms.COLUMN_THUMBNAIL_URI,
         )
         val sort = "${TvContractCompat.WatchNextPrograms.COLUMN_LAST_ENGAGEMENT_TIME_UTC_MILLIS} DESC"
         try {
@@ -28,7 +29,7 @@ class WatchNextRepository(private val context: Context) {
                         mapRow(
                             packageName = c.getString(0).orEmpty(),
                             title = c.getString(1),
-                            posterUri = c.getString(2),
+                            posterUri = c.getString(2)?.takeIf { it.isNotBlank() } ?: c.getString(6),
                             positionMs = c.getLong(3),
                             durationMs = c.getLong(4),
                             intentUri = c.getString(5),

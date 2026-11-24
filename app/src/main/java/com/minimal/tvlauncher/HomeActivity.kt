@@ -38,6 +38,8 @@ import com.minimal.tvlauncher.ui.IconCache
 import com.minimal.tvlauncher.ui.IdleScreen
 import com.minimal.tvlauncher.ui.LauncherSettingsScreen
 import com.minimal.tvlauncher.ui.LocalIconCache
+import com.minimal.tvlauncher.ui.LocalPosterLoader
+import com.minimal.tvlauncher.ui.PosterLoader
 import com.minimal.tvlauncher.util.CrashGuard
 import com.minimal.tvlauncher.ui.QuickAction
 import com.minimal.tvlauncher.util.MonotonicClock
@@ -92,8 +94,9 @@ class HomeActivity : ComponentActivity() {
         }
 
         val icons = IconCache(applicationContext)
+        val posters = PosterLoader(applicationContext)
         setContent {
-            CompositionLocalProvider(LocalIconCache provides remember { icons }) {
+            CompositionLocalProvider(LocalIconCache provides remember { icons }, LocalPosterLoader provides remember { posters }) {
                 val idleState by idle.state.collectAsState()
                 Box(Modifier.fillMaxSize()) {
                     AppBackground(art)

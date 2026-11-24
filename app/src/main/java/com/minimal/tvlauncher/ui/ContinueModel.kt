@@ -22,8 +22,10 @@ fun buildContinueCards(
     recents: List<AppEntry>,
     cap: Int = 10,
 ): List<ContinueCard> {
+    // Varios apps pueden publicar la misma serie (p. ej. Jellyfin y Wholphin): se muestra una vez, la más reciente.
     val fromSystem = watchNext
         .filter { it.packageName.isNotBlank() }
+        .distinctBy { it.title.trim().lowercase() }
         .take(cap)
         .map { ContinueCard(it.title, null, it.posterUri, it.progress, it.intentUri, it.packageName) }
     if (fromSystem.isNotEmpty()) return fromSystem

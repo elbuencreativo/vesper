@@ -30,6 +30,19 @@ class ContinueRowModelTest {
     }
 
     @Test
+    fun buildContinueCards_showsEachTitleOnce_keepingTheMostRecentRow() {
+        val rows = listOf(
+            wn(1, pkg = "org.jellyfin").copy(title = "MobLand"),
+            wn(2, pkg = "org.wholphin").copy(title = "MobLand"),
+            wn(3, pkg = "com.netflix").copy(title = "mobland "),
+            wn(4, pkg = "com.netflix").copy(title = "Palomas Negras"),
+        )
+        val cards = buildContinueCards(rows, emptyList())
+        assertEquals(listOf("MobLand", "Palomas Negras"), cards.map { it.title })
+        assertEquals("org.jellyfin", cards.first().packageName)
+    }
+
+    @Test
     fun buildContinueCards_isEmpty_whenNothingToShow() {
         assertEquals(emptyList<ContinueCard>(), buildContinueCards(emptyList(), emptyList()))
     }

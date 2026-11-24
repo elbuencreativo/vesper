@@ -28,6 +28,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -76,10 +78,15 @@ private fun ContinueCardView(card: ContinueCard, onClick: () -> Unit, modifier: 
     val (top, bottom) = CardGradients[Math.floorMod(card.packageName.hashCode(), CardGradients.size)]
     val icons = LocalIconCache.current
     val icon by produceState<ImageBitmap?>(null, card.packageName) { value = icons.get(card.packageName) }
+    val posters = LocalPosterLoader.current
+    val poster by produceState<ImageBitmap?>(null, card.posterUri) { value = card.posterUri?.let { posters.load(it) } }
 
     FocusTile(shape, modifier.width(184.dp).aspectRatio(16f / 9f), onClick = onClick) { focused ->
         Box(Modifier.fillMaxHeight().fillMaxWidth().background(Brush.linearGradient(listOf(top, bottom)))) {
-            icon?.let {
+            poster?.let {
+                Image(it, card.title, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+            }
+            if (poster == null) icon?.let {
                 Image(
                     it, null,
                     Modifier.size(34.dp).align(Alignment.Center),
