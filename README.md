@@ -24,7 +24,7 @@ Luego elige TV Launcher en **Configuración > Apps > App de inicio predeterminad
 
 ### Que la tecla HOME abra TV Launcher
 
-En Google TV el home de Google tiene prioridad sobre cualquier launcher de terceros, así que el rol de inicio no basta. TV Launcher incluye un servicio de accesibilidad que captura solo la tecla HOME y abre el launcher (no lee la pantalla ni toca el home de Google). Actívalo una vez en **Configuración > Accesibilidad > TV Launcher · tecla HOME**, o por ADB:
+En Google TV el home de Google tiene prioridad sobre cualquier launcher de terceros, así que el rol de inicio no basta. TV Launcher incluye un servicio de accesibilidad que detecta la tecla HOME y la aparición del home de Google, y abre el launcher en su lugar (no lee el contenido de la pantalla ni deshabilita el home de Google; puede verse un destello breve). Actívalo una vez en **Configuración > Accesibilidad > TV Launcher · tecla HOME**, o por ADB:
 
 ```bash
 adb -s IP:PUERTO shell settings put secure enabled_accessibility_services com.minimal.tvlauncher/com.minimal.tvlauncher.actions.HomeKeyService

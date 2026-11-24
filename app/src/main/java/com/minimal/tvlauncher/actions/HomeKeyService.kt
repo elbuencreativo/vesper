@@ -2,9 +2,12 @@ package com.minimal.tvlauncher.actions
 
 import android.accessibilityservice.AccessibilityService
 import android.content.Intent
+import android.os.SystemClock
 import android.view.KeyEvent
 import android.view.accessibility.AccessibilityEvent
 import com.minimal.tvlauncher.HomeActivity
+
+const val STOCK_HOME_PACKAGE = "com.google.android.apps.tv.launcherx"
 
 data class HomeKeyDecision(val consume: Boolean, val openLauncher: Boolean)
 
@@ -16,23 +19,49 @@ fun homeKeyDecision(keyCode: Int, action: Int): HomeKeyDecision = when {
 }
 
 /**
- * Captura la tecla HOME antes de que llegue al home de Google TV (que tiene prioridad sobre
- * cualquier launcher de terceros) y abre TV Launcher. Solo filtra teclas: no lee la pantalla.
- * El usuario debe activarlo en Accesibilidad.
+ * En Google TV la tecla HOME puede no pasar por el filtro de teclas: el sistema abre el home de Google.
+ * Entonces se detecta que esa pantalla apareció y se redirige a TV Launcher. [suppressUntil] pausa la
+ * redirección (el salvavidas de arranque cede al home de Google y no debe rebotar).
+ */
+fun shouldRedirectToLauncher(packageName: String?, className: String?, now: Long, suppressUntil: Long): Boolean =
+    now >= suppressUntil &&
+        packageName == STOCK_HOME_PACKAGE &&
+        className?.let { it.endsWith(".home.HomeActivity") || it.endsWith(".home.VanillaModeHomeActivity") } == true
+
+/**
+ * Hace que HOME abra TV Launcher aunque el home de Google tenga prioridad. Solo mira teclas y qué
+ * pantalla aparece (paquete y clase); no lee el contenido. El usuario debe activarlo en Accesibilidad.
  */
 class HomeKeyService : AccessibilityService() {
 
     override fun onKeyEvent(event: KeyEvent): Boolean {
         val decision = homeKeyDecision(event.keyCode, event.action)
-        if (decision.openLauncher) {
-            val intent = Intent(this, HomeActivity::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-            startActivity(intent)
-        }
+        if (decision.openLauncher) openLauncher()
         return decision.consume
     }
 
-    override fun onAccessibilityEvent(event: AccessibilityEvent?) = Unit
+    override fun onAccessibilityEvent(event: AccessibilityEvent?) {
+        if (event?.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return
+        if (shouldRedirectToLauncher(event.packageName?.toString(), event.className?.toString(), SystemClock.elapsedRealtime(), suppressUntil)) {
+            openLauncher()
+        }
+    }
 
     override fun onInterrupt() = Unit
+
+    private fun openLauncher() {
+        val intent = Intent(this, HomeActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+        startActivity(intent)
+    }
+
+    companion object {
+        @Volatile
+        private var suppressUntil = 0L
+
+        /** Pausa la redirección unos milisegundos (misma app/proceso que HomeActivity). */
+        fun suppressRedirectFor(ms: Long) {
+            suppressUntil = SystemClock.elapsedRealtime() + ms
+        }
+    }
 }

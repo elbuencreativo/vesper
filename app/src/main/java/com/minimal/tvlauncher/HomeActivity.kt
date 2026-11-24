@@ -24,6 +24,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
 import com.minimal.tvlauncher.actions.AppActions
+import com.minimal.tvlauncher.actions.HomeKeyService
+import com.minimal.tvlauncher.actions.STOCK_HOME_PACKAGE
 import com.minimal.tvlauncher.actions.Shortcut
 import com.minimal.tvlauncher.actions.SystemShortcuts
 import com.minimal.tvlauncher.data.AppEntry
@@ -230,6 +232,7 @@ class HomeActivity : ComponentActivity() {
         guard.onStart()
         if (guard.shouldYieldToStock()) {
             guard.markHealthy()
+            HomeKeyService.suppressRedirectFor(60_000) // que el captador de HOME no devuelva aquí al usuario
             val stock = Intent(Intent.ACTION_MAIN)
             stock.addCategory(Intent.CATEGORY_HOME)
             stock.setPackage(STOCK_HOME_PACKAGE)
@@ -248,6 +251,5 @@ class HomeActivity : ComponentActivity() {
         const val DEFAULT_DARK_MS = 1_200_000L
         const val HEALTHY_AFTER_MS = 8_000L
         const val READ_TV_LISTINGS = "android.permission.READ_TV_LISTINGS" // oculta en el SDK público
-        const val STOCK_HOME_PACKAGE = "com.google.android.apps.tv.launcherx"
     }
 }
