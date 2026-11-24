@@ -108,7 +108,7 @@ class HomeViewModel(app: Application) : AndroidViewModel(app) {
                 apk == null -> "La descarga falló o el archivo no coincide con su checksum."
                 !updates.canInstall() -> {
                     updates.openInstallPermission()
-                    "Permite instalar apps desde TV Launcher y vuelve a pulsar Instalar."
+                    "Permite instalar apps desde Vesper y vuelve a pulsar Instalar."
                 }
                 updates.install(apk) -> "Confirma la instalación en la pantalla del sistema."
                 else -> "No se pudo abrir el instalador."

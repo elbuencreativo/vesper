@@ -31,7 +31,7 @@ fun isHomeKeyServiceEnabled(enabledServices: String?, packageName: String): Bool
 
 /**
  * En Google TV la tecla HOME puede no pasar por el filtro de teclas: el sistema abre el home de Google.
- * Entonces se detecta que esa pantalla apareció y se redirige a TV Launcher. [suppressUntil] pausa la
+ * Entonces se detecta que esa pantalla apareció y se redirige a Vesper. [suppressUntil] pausa la
  * redirección (el salvavidas de arranque cede al home de Google y no debe rebotar).
  */
 fun shouldRedirectToLauncher(packageName: String?, className: String?, now: Long, suppressUntil: Long): Boolean =
@@ -40,7 +40,7 @@ fun shouldRedirectToLauncher(packageName: String?, className: String?, now: Long
         className?.let { it.endsWith(".home.HomeActivity") || it.endsWith(".home.VanillaModeHomeActivity") } == true
 
 /**
- * Hace que HOME abra TV Launcher aunque el home de Google tenga prioridad. Solo mira teclas y qué
+ * Hace que HOME abra Vesper aunque el home de Google tenga prioridad. Solo mira teclas y qué
  * pantalla aparece (paquete y clase); no lee el contenido. El usuario debe activarlo en Accesibilidad.
  */
 class HomeKeyService : AccessibilityService() {

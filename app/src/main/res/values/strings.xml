@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="home_key_service_description">Hace que la tecla HOME abra TV Launcher. Solo detecta esa tecla; no lee la pantalla.</string>
+    <string name="home_key_service_description">Hace que la tecla HOME abra Vesper. Solo detecta esa tecla; no lee la pantalla.</string>
 </resources>

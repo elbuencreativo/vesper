@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Devuelve el control del inicio al launcher original y (opcional) desinstala TV Launcher.
+# Devuelve el control del inicio al launcher original y (opcional) desinstala Vesper.
 #
 # Uso:  tools/revert_home.sh <ip:puerto> [--home PAQUETE] [--keep] [--dry-run]
 #   <ip:puerto>   dirección de depuración inalámbrica de la TV (cambia en cada sesión)
 #   --home        launcher al que volver (por defecto el de Google TV: com.google.android.apps.tv.launcherx;
 #                 usa p. ej. com.spocky.projengmenu para volver a Projectivy)
-#   --keep        no desinstalar TV Launcher
+#   --keep        no desinstalar Vesper
 #   --dry-run     solo muestra los comandos, no toca nada
 set -euo pipefail
 
@@ -31,7 +31,7 @@ run() {
 }
 
 run adb connect "$TARGET"
-# TV Launcher necesita que el home de Google TV esté deshabilitado; hay que reactivarlo antes de ceder el rol.
+# Vesper necesita que el home de Google TV esté deshabilitado; hay que reactivarlo antes de ceder el rol.
 run adb -s "$TARGET" shell pm enable --user 0 com.google.android.apps.tv.launcherx
 run adb -s "$TARGET" shell cmd role add-role-holder --user 0 android.app.role.HOME "$HOME_PKG"
 run adb -s "$TARGET" shell input keyevent KEYCODE_HOME

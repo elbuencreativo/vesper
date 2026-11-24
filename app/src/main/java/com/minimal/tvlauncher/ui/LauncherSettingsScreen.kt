@@ -69,7 +69,7 @@ fun LauncherSettingsScreen(
             }
             MenuItem("Volver al launcher original", onChooseHome)
             Spacer(Modifier.height(24.dp))
-            Label("TV Launcher $versionName", color = Palette.TextMuted, size = 10.sp)
+            Label("Vesper $versionName", color = Palette.TextMuted, size = 10.sp)
         }
     }
 }

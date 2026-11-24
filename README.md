@@ -1,4 +1,6 @@
-# TV Launcher
+# Vesper
+
+![Vesper](branding/vesper-banner.png)
 
 Launcher minimalista para Google TV (probado en Onn 4K, Android 14). Inicio con accesos, "Seguir viendo" y apps; reposo con obras de la National Gallery of Art.
 
@@ -20,18 +22,18 @@ adb connect 192.168.1.XX:PUERTO
 adb install -r app/build/outputs/apk/release/app-release.apk
 ```
 
-Luego elige TV Launcher en **Configuración > Apps > App de inicio predeterminada**.
+Luego elige Vesper en **Configuración > Apps > App de inicio predeterminada**.
 
-### Que la tecla HOME abra TV Launcher
+### Que la tecla HOME abra Vesper
 
-En Google TV el home de Google tiene prioridad sobre cualquier launcher de terceros, así que el rol de inicio no basta. TV Launcher incluye un servicio de accesibilidad que detecta la tecla HOME y la aparición del home de Google, y abre el launcher en su lugar (no lee el contenido de la pantalla ni deshabilita el home de Google; puede verse un destello breve). Actívalo una vez en **Configuración > Accesibilidad > TV Launcher · tecla HOME**, o por ADB:
+En Google TV el home de Google tiene prioridad sobre cualquier launcher de terceros, así que el rol de inicio no basta. Vesper incluye un servicio de accesibilidad que detecta la tecla HOME y la aparición del home de Google, y abre el launcher en su lugar (no lee el contenido de la pantalla ni deshabilita el home de Google; puede verse un destello breve). Actívalo una vez en **Configuración > Accesibilidad > Vesper · tecla HOME**, o por ADB:
 
 ```bash
 adb -s IP:PUERTO shell settings put secure enabled_accessibility_services com.minimal.tvlauncher/com.minimal.tvlauncher.actions.HomeKeyService
 adb -s IP:PUERTO shell settings put secure accessibility_enabled 1
 ```
 
-**Importante:** si fuerzas el cierre de TV Launcher (Configuración > Apps > Forzar detención, o `adb shell am force-stop`), Android apaga este servicio y HOME deja de abrir el launcher. Cuando eso pasa aparece un punto ámbar sobre el icono ◐ y en sus ajustes un botón "Activar el botón HOME".
+**Importante:** si fuerzas el cierre de Vesper (Configuración > Apps > Forzar detención, o `adb shell am force-stop`), Android apaga este servicio y HOME deja de abrir el launcher. Cuando eso pasa aparece un punto ámbar sobre el icono ◐ y en sus ajustes un botón "Activar el botón HOME".
 
 Para desactivarlo: Configuración > Accesibilidad, o `adb shell settings delete secure enabled_accessibility_services`.
 
@@ -41,11 +43,20 @@ Desde el app: Ajustes del launcher (icono ◐) > "Volver al launcher original". 
 
 ```bash
 tools/revert_home.sh 192.168.1.XX:PUERTO --dry-run     # ver qué haría
-tools/revert_home.sh 192.168.1.XX:PUERTO               # vuelve al home de Google TV y desinstala TV Launcher
-tools/revert_home.sh 192.168.1.XX:PUERTO --home com.spocky.projengmenu --keep   # vuelve a Projectivy, conserva TV Launcher
+tools/revert_home.sh 192.168.1.XX:PUERTO               # vuelve al home de Google TV y desinstala Vesper
+tools/revert_home.sh 192.168.1.XX:PUERTO --home com.spocky.projengmenu --keep   # vuelve a Projectivy, conserva Vesper
 ```
 
 Si el launcher falla 3 veces seguidas al arrancar, cede el control solo al home de Google TV.
+
+## Marca
+
+Nombre: **Vesper** (la estrella de la tarde). Icono: un sol poniente con rayas, en la paleta del launcher. El identificador interno del app sigue siendo `com.minimal.tvlauncher` (cambiarlo rompería el rol de inicio, el servicio de accesibilidad y los datos guardados).
+
+- Icono adaptable (vector): `app/src/main/res/drawable/ic_launcher_foreground.xml` sobre `#04071D`.
+- Banner de Android TV (320×180): `app/src/main/res/drawable-xhdpi/banner.png` y `drawable-xxhdpi/`.
+- PNG de marca: `branding/vesper-icon-512.png` y `branding/vesper-banner.png`.
+- Regenerar banner y PNG: `swift tools/brand/make_assets.swift .`
 
 ## Diseño
 
@@ -53,7 +64,7 @@ Paleta de 10 tonos (azul noche a ámbar) en `ui/Theme.kt`, con roles tonales al 
 
 ## Actualizar el launcher
 
-Ajustes del launcher (icono ◐) > **Buscar actualización**. El launcher consulta un `update.json` (dirección en `gradle.properties`, `updateUrl`); si hay una versión con `versionCode` mayor, ofrece **Instalar**, descarga el APK, verifica su checksum SHA-256 y abre el instalador del sistema. La primera vez Android pide permitir instalar apps desde TV Launcher.
+Ajustes del launcher (icono ◐) > **Buscar actualización**. El launcher consulta un `update.json` (dirección en `gradle.properties`, `updateUrl`); si hay una versión con `versionCode` mayor, ofrece **Instalar**, descarga el APK, verifica su checksum SHA-256 y abre el instalador del sistema. La primera vez Android pide permitir instalar apps desde Vesper.
 
 Para publicar una versión nueva desde esta Mac: sube `versionCode`/`versionName` en `app/build.gradle.kts` y ejecuta
 

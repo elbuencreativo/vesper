@@ -35,7 +35,7 @@ class UpdateChecker(private val context: Context, private val manifestUrl: Strin
 
     fun canInstall(): Boolean = context.packageManager.canRequestPackageInstalls()
 
-    /** Abre la pantalla del sistema donde se permite instalar apps desde TV Launcher. */
+    /** Abre la pantalla del sistema donde se permite instalar apps desde Vesper. */
     fun openInstallPermission(): Boolean = try {
         val intent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, Uri.parse("package:${context.packageName}"))
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Sol poniente de Vesper: círculo con degradado ámbar→vino y rayas del color del fondo (zona segura de 66 dp). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path android:pathData="M25,54 a29,29 0 1,0 58,0 a29,29 0 1,0 -58,0 z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:endX="54"
+                android:endY="83"
+                android:startX="54"
+                android:startY="25"
+                android:type="linear">
+                <item android:color="#F5BD42" android:offset="0" />
+                <item android:color="#D7662A" android:offset="0.5" />
+                <item android:color="#901C16" android:offset="1" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path android:fillColor="#04071D" android:pathData="M24,56.83 h60 v1.3 h-60 z" />
+    <path android:fillColor="#04071D" android:pathData="M24,62.77 h60 v2.18 h-60 z" />
+    <path android:fillColor="#04071D" android:pathData="M24,68.65 h60 v3.19 h-60 z" />
+    <path android:fillColor="#04071D" android:pathData="M24,74.45 h60 v4.35 h-60 z" />
+</vector>

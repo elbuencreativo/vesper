@@ -23,7 +23,10 @@
         android:required="false" />
 
     <application
-        android:label="TV Launcher"
+        android:label="Vesper"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:banner="@drawable/banner"
         android:usesCleartextTraffic="true"
         android:theme="@android:style/Theme.DeviceDefault.NoActionBar"
         android:supportsRtl="true">
@@ -58,7 +61,7 @@
         <service
             android:name=".actions.HomeKeyService"
             android:exported="true"
-            android:label="TV Launcher · tecla HOME"
+            android:label="Vesper · tecla HOME"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
             <intent-filter>
                 <action android:name="android.accessibilityservice.AccessibilityService" />
