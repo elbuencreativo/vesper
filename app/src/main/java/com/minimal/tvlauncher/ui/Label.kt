@@ -38,20 +38,28 @@ fun Label(
     )
 }
 
+/** Icono de app a 128 px más el color de su borde (para pintar el marco sin doble contorno). */
+class AppIcon(val image: ImageBitmap, val edge: Int?)
+
 /** Iconos de apps a 128 px, cacheados en memoria. */
 class IconCache(private val context: Context) {
-    private val cache = LruCache<String, ImageBitmap>(64)
+    private val cache = LruCache<String, AppIcon>(64)
 
-    suspend fun get(packageName: String): ImageBitmap? {
+    suspend fun getAppIcon(packageName: String): AppIcon? {
         cache.get(packageName)?.let { return it }
         val loaded = withContext(Dispatchers.IO) {
             runCatching {
-                context.packageManager.getApplicationIcon(packageName).toBitmap(128, 128).asImageBitmap()
+                val bitmap = context.packageManager.getApplicationIcon(packageName).toBitmap(128, 128)
+                val pixels = IntArray(bitmap.width * bitmap.height)
+                bitmap.getPixels(pixels, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
+                AppIcon(bitmap.asImageBitmap(), edgeColor(pixels, bitmap.width, bitmap.height))
             }.getOrNull()
         }
         if (loaded != null) cache.put(packageName, loaded)
         return loaded
     }
+
+    suspend fun get(packageName: String): ImageBitmap? = getAppIcon(packageName)?.image
 }
 
 val LocalIconCache = compositionLocalOf<IconCache> { error("IconCache no provisto") }

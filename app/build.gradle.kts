@@ -13,8 +13,11 @@ android {
         applicationId = "com.minimal.tvlauncher"
         minSdk = 28
         targetSdk = 34
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = 2
+        versionName = "0.2.0"
+        // Dirección del update.json que consulta "Buscar actualización" (ver tools/publish_update.sh).
+        val updateUrl = (project.findProperty("updateUrl") as String?).orEmpty()
+        buildConfigField("String", "UPDATE_URL", "\"$updateUrl\"")
     }
 
     buildTypes {

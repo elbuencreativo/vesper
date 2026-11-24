@@ -29,6 +29,23 @@ class ReorderTest {
     }
 
     @Test
+    fun reorderWithin_movesOnlyAmongTheSectionItems_leavingTheOthersInPlace() {
+        val all = listOf("a", "x", "b", "y", "c") // a,b,c son de la sección; x,y no
+        val inSection = { s: String -> s in setOf("a", "b", "c") }
+        assertEquals(listOf("c", "x", "a", "y", "b"), reorderWithin(all, inSection, from = 2, to = 0))
+        assertEquals(listOf("b", "x", "a", "y", "c"), reorderWithin(all, inSection, from = 0, to = 1))
+        assertEquals(all, reorderWithin(all, inSection, from = 0, to = 5))
+        assertEquals(all, reorderWithin(all, inSection, from = -1, to = 1))
+    }
+
+    @Test
+    fun toggleFavorite_addsRemoves_andRespectsTheMaximum() {
+        assertEquals(setOf("a"), toggleFavorite(emptySet(), "a", max = 2))
+        assertEquals(setOf("b"), toggleFavorite(setOf("a", "b"), "a", max = 2))
+        assertEquals(setOf("a", "b"), toggleFavorite(setOf("a", "b"), "c", max = 2)) // lleno: no agrega
+    }
+
+    @Test
     fun toggleHidden_addsWhenAbsent_andRemovesWhenPresent() {
         assertEquals(setOf("x"), toggleHidden(emptySet(), "x"))
         assertEquals(setOf("y"), toggleHidden(setOf("x", "y"), "x"))

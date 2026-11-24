@@ -18,6 +18,15 @@ class Prefs(private val store: DataStore<Preferences>) {
     val order: Flow<List<String>> = store.data.map { it[ORDER].toList() }
     val hidden: Flow<Set<String>> = store.data.map { it[HIDDEN] ?: emptySet() }
 
+    /** Favoritos elegidos (fila de inicio). null = el usuario aún no eligió (se usan los primeros apps). */
+    val favorites: Flow<Set<String>?> = store.data.map { prefs ->
+        prefs[FAVORITES]?.let { if (it.isEmpty()) emptySet() else it.split(SEP).toSet() }
+    }
+
+    suspend fun setFavorites(favorites: Set<String>) {
+        store.edit { it[FAVORITES] = favorites.joinToString(SEP) }
+    }
+
     val recents: Flow<List<String>> = store.data.map { it[RECENTS].toList() }
 
     /** Marcas de tiempo (reloj monotónico) de los últimos arranques, para el salvavidas de arranque. */
@@ -49,5 +58,6 @@ class Prefs(private val store: DataStore<Preferences>) {
         val HIDDEN = stringSetPreferencesKey("hidden")
         val RECENTS = stringPreferencesKey("recents")
         val STARTS = stringPreferencesKey("starts")
+        val FAVORITES = stringPreferencesKey("favorites")
     }
 }

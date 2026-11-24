@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -53,12 +54,12 @@ fun ContinueRow(
 ) {
     Column(modifier) {
         Label(
-            "SEGUIR VIENDO", Modifier.padding(start = 48.dp), Palette.Accent.copy(alpha = 0.85f), 9.sp,
+            "SEGUIR VIENDO", Modifier.padding(start = 48.dp).offset(y = 22.dp), Palette.Accent.copy(alpha = 0.85f), 9.sp,
             letterSpacing = 2.sp,
         )
         Spacer(Modifier.height(8.dp))
         LazyRow(
-            contentPadding = PaddingValues(horizontal = 48.dp, vertical = 8.dp),
+            contentPadding = PaddingValues(horizontal = 48.dp, vertical = 32.dp),
             horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(14.dp),
         ) {
             itemsIndexed(cards, key = { i, c -> "$i:${c.packageName}:${c.title}" }) { i, card ->

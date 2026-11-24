@@ -27,6 +27,11 @@ fun LauncherSettingsScreen(
     versionName: String,
     onUnhideAll: () -> Unit,
     onChooseHome: () -> Unit,
+    updateStatus: String?,
+    updateVersion: String?,
+    updateBusy: Boolean,
+    onCheckUpdate: () -> Unit,
+    onInstallUpdate: () -> Unit,
     onBack: () -> Unit,
 ) {
     val first = remember { FocusRequester() }
@@ -38,9 +43,18 @@ fun LauncherSettingsScreen(
             Label("AJUSTES DEL LAUNCHER", color = Palette.Accent.copy(alpha = 0.85f), size = 10.sp, letterSpacing = 2.sp)
             Spacer(Modifier.height(16.dp))
             MenuItem(
+                when {
+                    updateBusy -> "Un momento…"
+                    updateVersion != null -> "Instalar versión $updateVersion"
+                    else -> "Buscar actualización"
+                },
+                if (updateVersion != null) onInstallUpdate else onCheckUpdate,
+                Modifier.focusRequester(first),
+            )
+            updateStatus?.let { Label(it, Modifier.padding(horizontal = 14.dp), Palette.Accent, 11.sp, maxLines = 3) }
+            MenuItem(
                 if (hiddenCount > 0) "Mostrar apps ocultas ($hiddenCount)" else "No hay apps ocultas",
                 onUnhideAll,
-                Modifier.focusRequester(first),
             )
             MenuItem("Volver al launcher original", onChooseHome)
             Spacer(Modifier.height(24.dp))

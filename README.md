@@ -49,10 +49,22 @@ Si el launcher falla 3 veces seguidas al arrancar, cede el control solo al home 
 
 Paleta de 10 tonos (azul noche a ámbar) en `ui/Theme.kt`, con roles tonales al estilo Material 3. Fondo permanente: una obra de la National Gallery bajo una capa de la paleta, que cambia cada 10 minutos. El foco es ámbar con resplandor naranja. Los iconos son monocromos cálidos y recuperan su color al enfocar.
 
+## Actualizar el launcher
+
+Ajustes del launcher (icono ◐) > **Buscar actualización**. El launcher consulta un `update.json` (dirección en `gradle.properties`, `updateUrl`); si hay una versión con `versionCode` mayor, ofrece **Instalar**, descarga el APK, verifica su checksum SHA-256 y abre el instalador del sistema. La primera vez Android pide permitir instalar apps desde TV Launcher.
+
+Para publicar una versión nueva desde esta Mac: sube `versionCode`/`versionName` en `app/build.gradle.kts` y ejecuta
+
+```bash
+tools/publish_update.sh --notes "Qué cambió"    # compila, escribe updates/update.json y sirve la carpeta en tu red
+```
+
+Déjalo corriendo mientras la TV busca y descarga; detenlo con Ctrl-C. La actualización debe ir firmada con la misma clave (la de depuración de esta Mac).
+
 ## Controles
 
 - **OK** abre; **mantener OK** en un app de la fila abre su pantalla de información (Forzar detención).
-- **＋** abre todas las apps; **Editar** permite mover, ocultar y desinstalar.
+- **＋** abre todas las apps en tres secciones: **Favoritos** (los de la pantalla de inicio, máximo 10), **Todas las apps** y **Ocultas**. **Mantén OK** sobre un app para moverlo, agregarlo o quitarlo de favoritos, ocultarlo o desinstalarlo.
 - Sin tocar el control 5 min entra el reposo; tras 20 min de arte la pantalla queda en negro. Cualquier botón vuelve al inicio.
 
 ## Cambiar las obras del reposo

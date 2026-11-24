@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
@@ -50,10 +51,10 @@ fun AppRow(
 ) {
     var focusedLabel by remember { mutableStateOf("") }
     Column(modifier) {
-        Label("APPS", Modifier.padding(start = 48.dp), Palette.Accent.copy(alpha = 0.85f), 9.sp, letterSpacing = 2.sp)
+        Label("APPS", Modifier.padding(start = 48.dp).offset(y = 22.dp), Palette.Accent.copy(alpha = 0.85f), 9.sp, letterSpacing = 2.sp)
         Spacer(Modifier.height(8.dp))
         LazyRow(
-            contentPadding = PaddingValues(horizontal = 48.dp, vertical = 8.dp),
+            contentPadding = PaddingValues(horizontal = 48.dp, vertical = 32.dp),
             horizontalArrangement = Arrangement.spacedBy(14.dp),
         ) {
             items(apps, key = { it.packageName }) { app ->
@@ -84,7 +85,7 @@ fun AppRow(
             }
         }
         Label(
-            focusedLabel, Modifier.padding(start = 48.dp).height(16.dp),
+            focusedLabel, Modifier.padding(start = 48.dp).height(16.dp).offset(y = (-22).dp),
             Palette.TextMuted, 11.sp, letterSpacing = 0.5.sp,
         )
     }
@@ -99,25 +100,14 @@ private fun AppTile(
     modifier: Modifier,
 ) {
     val icons = LocalIconCache.current
-    val icon by produceState<ImageBitmap?>(null, app.packageName) { value = icons.get(app.packageName) }
+    val icon by produceState<AppIcon?>(null, app.packageName) { value = icons.getAppIcon(app.packageName) }
     FocusTile(
-        RoundedCornerShape(12.dp), modifier.size(48.dp),
+        RoundedCornerShape(12.dp), modifier.size(52.dp),
         onFocusChange = { if (it) onFocus() },
         onLongClick = onClose,
         onClick = onLaunch,
     ) { focused ->
-        Box(
-            Modifier.fillMaxSize().background(Palette.Surface.copy(alpha = 0.86f))
-                .border(1.dp, Palette.Line, RoundedCornerShape(12.dp)),
-            contentAlignment = Alignment.Center,
-        ) {
-            icon?.let {
-                Image(
-                    it, app.label, Modifier.size(30.dp),
-                    alpha = if (focused) 1f else 0.7f,
-                    colorFilter = if (focused) null else WarmMonochrome,
-                )
-            }
-        }
+        // El marco redondeado se pinta del color de fondo del icono: una sola pieza, sin doble marco.
+        AppIconBox(icon, lit = focused, modifier = Modifier.fillMaxSize().border(1.dp, Palette.Line, RoundedCornerShape(12.dp)))
     }
 }

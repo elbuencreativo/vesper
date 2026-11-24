@@ -54,6 +54,32 @@ class OrderLogicTest {
     }
 
     @Test
+    fun arrange_withFavorites_rowIsOnlyVisibleFavoritesInOrder_andTheRestGoToOthers() {
+        val favorites = setOf("com.zeta", "com.netflix.ninja", "com.alpha")
+        val r = OrderLogic.arrange(installed, emptyList(), hidden = setOf("com.alpha"), defaultFirst = defaultFirst, favorites = favorites)
+        assertEquals(listOf("com.netflix.ninja", "com.zeta"), r.row.map { it.packageName })
+        assertEquals(listOf("com.google.android.youtube.tv"), r.others.map { it.packageName })
+        assertEquals(listOf("com.alpha"), r.hiddenEntries.map { it.packageName })
+    }
+
+    @Test
+    fun arrange_withoutExplicitFavorites_firstEightVisibleAreTheFavorites_andTheRestAreOthers() {
+        val many = (1..12).map { app("com.app$it", "App%02d".format(it)) }
+        val r = OrderLogic.arrange(many, emptyList(), emptySet(), emptyList())
+        assertEquals(8, r.row.size)
+        assertEquals(4, r.others.size)
+    }
+
+    @Test
+    fun arrange_withFavorites_ignoresFavoritesThatAreNoLongerInstalled_andCapsTheRow() {
+        val many = (1..15).map { app("com.app$it", "App%02d".format(it)) }
+        val favs = (1..15).map { "com.app$it" }.toSet() + "com.gone"
+        val r = OrderLogic.arrange(many, emptyList(), emptySet(), emptyList(), favorites = favs)
+        assertEquals(OrderLogic.MAX_FAVORITES, r.row.size)
+        assertEquals(15, r.all.size)
+    }
+
+    @Test
     fun arrange_rowIsCappedAtEightVisibleApps() {
         val many = (1..12).map { app("com.app$it", "App%02d".format(it)) }
         val r = OrderLogic.arrange(many, emptyList(), emptySet(), emptyList())

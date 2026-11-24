@@ -105,10 +105,10 @@ class HomeActivity : ComponentActivity() {
                     key(homeTick) {
                         when (screen) {
                             Screen.All -> AllAppsScreen(
-                                apps = vm.apps.all,
-                                hidden = vm.apps.hiddenEntries.mapTo(HashSet()) { it.packageName },
+                                apps = vm.apps,
                                 onLaunch = ::launch,
                                 onSaveOrder = vm::saveOrder,
+                                onToggleFavorite = vm::toggleFavorite,
                                 onToggleHidden = vm::toggleHidden,
                                 onUninstall = actions::uninstall,
                                 onBack = { screen = Screen.Home },
@@ -118,6 +118,11 @@ class HomeActivity : ComponentActivity() {
                                 versionName = BuildConfig.VERSION_NAME,
                                 onUnhideAll = vm::unhideAll,
                                 onChooseHome = { if (!shortcuts.open(Shortcut.ChooseHome)) flash("No se pudo abrir los ajustes") },
+                                updateStatus = vm.updateStatus,
+                                updateVersion = vm.availableUpdate?.versionName,
+                                updateBusy = vm.updateBusy,
+                                onCheckUpdate = vm::checkForUpdate,
+                                onInstallUpdate = vm::installUpdate,
                                 onBack = { screen = Screen.Home },
                             )
                             Screen.Home -> HomeScreen(

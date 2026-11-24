@@ -18,6 +18,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
@@ -60,5 +61,5 @@ fun Clock(modifier: Modifier = Modifier, color: Color = Palette.TextMuted) {
         }
     }
     val format = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
-    Label(format.format(now), modifier, color, 14.sp, letterSpacing = 1.sp)
+    Label(format.format(now), modifier, color, 24.sp, weight = FontWeight.Bold, letterSpacing = 1.sp)
 }

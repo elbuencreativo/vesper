@@ -52,11 +52,12 @@ fun HomeScreen(
     Box(Modifier.fillMaxSize()) {
         Column(Modifier.fillMaxSize()) {
             TopBar(onAction, Modifier.padding(start = 48.dp, end = 48.dp, top = 32.dp))
-            Spacer(Modifier.height(36.dp))
+            // "Seguir viendo" va pegado a la fila de apps, abajo, no arriba.
+            Spacer(Modifier.weight(1f))
             if (cards.isNotEmpty()) {
                 ContinueRow(cards, cardFocus, onCard)
+                Spacer(Modifier.height(18.dp))
             }
-            Spacer(Modifier.weight(1f))
             AppRow(apps.row, appFocus, onLaunch, onClose, onOpenAll, Modifier.padding(bottom = 24.dp))
         }
         AnimatedVisibility(
