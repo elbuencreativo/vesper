@@ -14,6 +14,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
@@ -48,8 +49,13 @@ fun FocusTile(
     Box(
         modifier
             .graphicsLayer { scaleX = scale; scaleY = scale }
+            // Resplandor cálido (naranja de la paleta) solo al enfocar; el contorno es el ámbar de acento.
+            .then(
+                if (focused) Modifier.shadow(22.dp, shape, ambientColor = Palette.AccentGlow, spotColor = Palette.AccentGlow)
+                else Modifier,
+            )
             .clip(shape)
-            .then(if (focused) Modifier.border(2.dp, Palette.Focus, shape) else Modifier)
+            .then(if (focused) Modifier.border(2.5.dp, Palette.Focus, shape) else Modifier)
             .onKeyEvent { e ->
                 val k = e.nativeKeyEvent
                 if (k.keyCode !in CONFIRM_KEYS) return@onKeyEvent false

@@ -49,10 +49,7 @@ fun HomeScreen(
         }
     }
 
-    Box(
-        Modifier.fillMaxSize()
-            .background(Brush.verticalGradient(listOf(Palette.BackgroundTop, Palette.Background))),
-    ) {
+    Box(Modifier.fillMaxSize()) {
         Column(Modifier.fillMaxSize()) {
             TopBar(onAction, Modifier.padding(start = 48.dp, end = 48.dp, top = 32.dp))
             Spacer(Modifier.height(36.dp))
@@ -69,7 +66,7 @@ fun HomeScreen(
             modifier = Modifier.align(Alignment.BottomEnd).padding(end = 48.dp, bottom = 40.dp),
         ) {
             Box(
-                Modifier.clip(RoundedCornerShape(20.dp)).background(Palette.Surface)
+                Modifier.clip(RoundedCornerShape(20.dp)).background(Palette.SurfaceHigh)
                     .padding(horizontal = 16.dp, vertical = 8.dp),
             ) {
                 Label(lastMessage.value, color = Palette.Text, size = 12.sp)

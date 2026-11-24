@@ -33,12 +33,9 @@ fun LauncherSettingsScreen(
     BackHandler(onBack = onBack)
     LaunchedEffect(Unit) { runCatching { first.requestFocus() } }
 
-    Box(
-        Modifier.fillMaxSize()
-            .background(Brush.verticalGradient(listOf(Palette.BackgroundTop, Palette.Background))),
-    ) {
+    Box(Modifier.fillMaxSize()) {
         Column(Modifier.padding(start = 48.dp, top = 40.dp).width(360.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Label("AJUSTES DEL LAUNCHER", color = Palette.TextMuted, size = 10.sp, letterSpacing = 2.sp)
+            Label("AJUSTES DEL LAUNCHER", color = Palette.Accent.copy(alpha = 0.85f), size = 10.sp, letterSpacing = 2.sp)
             Spacer(Modifier.height(16.dp))
             MenuItem(
                 if (hiddenCount > 0) "Mostrar apps ocultas ($hiddenCount)" else "No hay apps ocultas",

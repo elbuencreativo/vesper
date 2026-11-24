@@ -1,5 +1,6 @@
 package com.minimal.tvlauncher.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,10 +36,12 @@ fun TopBar(onAction: (QuickAction) -> Unit, modifier: Modifier = Modifier) {
             QuickAction.entries.forEach { action ->
                 FocusTile(CircleShape, Modifier.size(30.dp), onClick = { onAction(action) }) { focused ->
                     Box(
-                        Modifier.fillMaxSize().border(1.dp, Palette.Line, CircleShape),
+                        Modifier.fillMaxSize()
+                            .background(Palette.Surface.copy(alpha = 0.7f), CircleShape)
+                            .border(1.dp, Palette.Line, CircleShape),
                         contentAlignment = Alignment.Center,
                     ) {
-                        QuickIcon(action, if (focused) Palette.Text else Palette.TextMuted, 15.dp)
+                        QuickIcon(action, if (focused) Palette.Accent else Palette.TextMuted, 15.dp)
                     }
                 }
             }

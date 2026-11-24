@@ -99,11 +99,11 @@ private fun ArtFrame(s: Shown) {
         )
         Box(
             Modifier.align(Alignment.TopStart).fillMaxWidth().height(120.dp)
-                .background(Brush.verticalGradient(listOf(Color(0x88000000), Color.Transparent))),
+                .background(Brush.verticalGradient(listOf(Palette.Navy.copy(alpha = 0.6f), Color.Transparent))),
         )
         Box(
             Modifier.align(Alignment.BottomStart).fillMaxWidth().height(170.dp)
-                .background(Brush.verticalGradient(listOf(Color.Transparent, Color(0xAA000000)))),
+                .background(Brush.verticalGradient(listOf(Color.Transparent, Palette.Navy.copy(alpha = 0.78f)))),
         )
         Column(Modifier.align(Alignment.BottomStart).padding(start = 48.dp, bottom = 40.dp)) {
             Label(s.work.title, color = SoftWhite, size = 15.sp)

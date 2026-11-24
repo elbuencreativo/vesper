@@ -31,6 +31,7 @@ import com.minimal.tvlauncher.data.ArtRepository
 import com.minimal.tvlauncher.idle.IdleController
 import com.minimal.tvlauncher.idle.IdleState
 import com.minimal.tvlauncher.ui.AllAppsScreen
+import com.minimal.tvlauncher.ui.AppBackground
 import com.minimal.tvlauncher.ui.ContinueCard
 import com.minimal.tvlauncher.ui.HomeScreen
 import com.minimal.tvlauncher.ui.IconCache
@@ -95,6 +96,7 @@ class HomeActivity : ComponentActivity() {
             CompositionLocalProvider(LocalIconCache provides remember { icons }) {
                 val idleState by idle.state.collectAsState()
                 Box(Modifier.fillMaxSize()) {
+                    AppBackground(art)
                     key(homeTick) {
                         when (screen) {
                             Screen.All -> AllAppsScreen(

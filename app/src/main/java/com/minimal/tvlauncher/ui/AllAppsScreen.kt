@@ -48,7 +48,6 @@ import com.minimal.tvlauncher.data.AppEntry
 import com.minimal.tvlauncher.data.moveItem
 
 private const val COLUMNS = 8
-private val Gray = ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(0f) })
 
 /**
  * Todas las apps en cuadrícula. "Editar" activa el modo de edición: OK sobre un app abre
@@ -86,7 +85,6 @@ fun AllAppsScreen(
 
     Box(
         Modifier.fillMaxSize()
-            .background(Brush.verticalGradient(listOf(Palette.BackgroundTop, Palette.Background)))
             .onPreviewKeyEvent { e ->
                 val k = e.nativeKeyEvent
                 if (movingPkg == null) return@onPreviewKeyEvent false
@@ -118,7 +116,7 @@ fun AllAppsScreen(
                 Label(
                     if (movingPkg != null) "MOVER · usa las flechas y pulsa OK para soltar"
                     else if (editing) "EDITAR APPS" else "TODAS LAS APPS",
-                    color = Palette.TextMuted, size = 10.sp, letterSpacing = 2.sp,
+                    color = Palette.Accent.copy(alpha = 0.85f), size = 10.sp, letterSpacing = 2.sp,
                 )
                 FocusTile(
                     RoundedCornerShape(16.dp),
@@ -173,7 +171,7 @@ private fun GridApp(app: AppEntry, dimmed: Boolean, grabbed: Boolean, onClick: (
     FocusTile(RoundedCornerShape(12.dp), Modifier.fillMaxWidth().height(86.dp), onClick = onClick) { focused ->
         val lit = focused || grabbed
         Column(
-            Modifier.fillMaxSize().background(if (grabbed) Color(0xFF26262C) else Palette.Surface)
+            Modifier.fillMaxSize().background(if (grabbed) Palette.SurfaceHigh else Palette.Surface.copy(alpha = 0.86f))
                 .then(if (grabbed) Modifier.border(2.dp, Palette.Focus, RoundedCornerShape(12.dp)) else Modifier),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
@@ -182,7 +180,7 @@ private fun GridApp(app: AppEntry, dimmed: Boolean, grabbed: Boolean, onClick: (
                 Image(
                     it, app.label, Modifier.size(34.dp),
                     alpha = if (dimmed) 0.3f else if (lit) 1f else 0.75f,
-                    colorFilter = if (lit && !dimmed) null else Gray,
+                    colorFilter = if (lit && !dimmed) null else WarmMonochrome,
                 )
             }
             Spacer(Modifier.height(6.dp))
@@ -206,9 +204,9 @@ private fun ActionMenu(
 ) {
     val first = remember { FocusRequester() }
     LaunchedEffect(Unit) { runCatching { first.requestFocus() } }
-    Box(Modifier.fillMaxSize().background(Color(0xCC000000)), contentAlignment = Alignment.Center) {
+    Box(Modifier.fillMaxSize().background(Palette.Navy.copy(alpha = 0.82f)), contentAlignment = Alignment.Center) {
         Column(
-            Modifier.width(260.dp).background(Palette.Surface, RoundedCornerShape(16.dp)).padding(20.dp),
+            Modifier.width(260.dp).background(Palette.SurfaceHigh, RoundedCornerShape(16.dp)).padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Label(title, color = Palette.Text, size = 14.sp)
@@ -225,7 +223,7 @@ private fun ActionMenu(
 internal fun MenuItem(text: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
     FocusTile(RoundedCornerShape(10.dp), modifier.fillMaxWidth(), onClick = onClick) { focused ->
         Box(
-            Modifier.fillMaxWidth().background(if (focused) Color(0xFF2A2A31) else Color.Transparent)
+            Modifier.fillMaxWidth().background(if (focused) Palette.Wine700.copy(alpha = 0.7f) else Color.Transparent)
                 .padding(horizontal = 14.dp, vertical = 10.dp),
         ) {
             Label(text, color = if (focused) Palette.Text else Palette.TextMuted, size = 12.sp)

@@ -32,13 +32,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+// Degradados de tarjeta con la paleta: siempre oscuros para que el título se lea.
 private val CardGradients = listOf(
-    Color(0xFF3A2424) to Color(0xFF16100F),
-    Color(0xFF1F3342) to Color(0xFF0E141A),
-    Color(0xFF2E3A22) to Color(0xFF12170E),
-    Color(0xFF38294A) to Color(0xFF15101C),
-    Color(0xFF3F3524) to Color(0xFF17130D),
-    Color(0xFF243B3A) to Color(0xFF0E1717),
+    Palette.Wine700 to Palette.Navy,
+    Palette.Crimson.copy(alpha = 0.85f) to Palette.Wine900,
+    Palette.Wine900 to Palette.Navy,
+    Palette.Vermilion.copy(alpha = 0.65f) to Palette.Wine900,
+    Palette.Orange.copy(alpha = 0.55f) to Palette.Wine700,
+    Palette.Amber.copy(alpha = 0.45f) to Palette.Wine900,
 )
 
 @Composable
@@ -50,7 +51,7 @@ fun ContinueRow(
 ) {
     Column(modifier) {
         Label(
-            "SEGUIR VIENDO", Modifier.padding(start = 48.dp), Palette.TextMuted, 9.sp,
+            "SEGUIR VIENDO", Modifier.padding(start = 48.dp), Palette.Accent.copy(alpha = 0.85f), 9.sp,
             letterSpacing = 2.sp,
         )
         Spacer(Modifier.height(8.dp))
@@ -83,12 +84,12 @@ private fun ContinueCardView(card: ContinueCard, onClick: () -> Unit, modifier: 
                     it, null,
                     Modifier.size(34.dp).align(Alignment.Center),
                     alpha = if (focused) 0.95f else 0.55f,
-                    colorFilter = if (focused) null else ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(0f) }),
+                    colorFilter = if (focused) null else WarmMonochrome,
                 )
             }
             Box(
                 Modifier.align(Alignment.BottomStart).fillMaxWidth()
-                    .background(Brush.verticalGradient(listOf(Color.Transparent, Color(0xCC000000))))
+                    .background(Brush.verticalGradient(listOf(Color.Transparent, Palette.Navy.copy(alpha = 0.85f))))
                     .padding(start = 10.dp, end = 10.dp, top = 14.dp, bottom = 8.dp),
             ) {
                 Label(card.title, color = Palette.Text, size = 11.sp)
@@ -98,7 +99,7 @@ private fun ContinueCardView(card: ContinueCard, onClick: () -> Unit, modifier: 
                     Modifier.align(Alignment.BottomStart).fillMaxWidth().height(2.dp)
                         .background(Color(0x33FFFFFF)),
                 ) {
-                    Box(Modifier.fillMaxHeight().fillMaxWidth(p.coerceIn(0f, 1f)).background(Palette.Text))
+                    Box(Modifier.fillMaxHeight().fillMaxWidth(p.coerceIn(0f, 1f)).background(Palette.Accent))
                 }
             }
         }

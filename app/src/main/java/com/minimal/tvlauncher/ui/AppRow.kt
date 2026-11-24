@@ -35,8 +35,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.minimal.tvlauncher.data.AppEntry
 
-private val GrayscaleFilter = ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(0f) })
-
 /**
  * Fila de apps: iconos en escala de grises que recuperan el color al enfocar.
  * OK abre, mantener OK cierra el app. El nombre del app enfocado aparece debajo.
@@ -52,7 +50,7 @@ fun AppRow(
 ) {
     var focusedLabel by remember { mutableStateOf("") }
     Column(modifier) {
-        Label("APPS", Modifier.padding(start = 48.dp), Palette.TextMuted, 9.sp, letterSpacing = 2.sp)
+        Label("APPS", Modifier.padding(start = 48.dp), Palette.Accent.copy(alpha = 0.85f), 9.sp, letterSpacing = 2.sp)
         Spacer(Modifier.height(8.dp))
         LazyRow(
             contentPadding = PaddingValues(horizontal = 48.dp, vertical = 8.dp),
@@ -74,9 +72,10 @@ fun AppRow(
                     onClick = onOpenAll,
                 ) { focused ->
                     Canvas(
-                        Modifier.fillMaxSize().border(1.dp, Palette.Line, RoundedCornerShape(12.dp)).padding(16.dp),
+                        Modifier.fillMaxSize().background(Palette.Surface.copy(alpha = 0.86f))
+                            .border(1.dp, Palette.Line, RoundedCornerShape(12.dp)).padding(16.dp),
                     ) {
-                        val c = if (focused) Palette.Text else Palette.TextMuted
+                        val c = if (focused) Palette.Accent else Palette.TextMuted
                         val w = size.width
                         drawLine(c, Offset(0f, w / 2), Offset(w, w / 2), 2.5f, StrokeCap.Round)
                         drawLine(c, Offset(w / 2, 0f), Offset(w / 2, w), 2.5f, StrokeCap.Round)
@@ -108,7 +107,7 @@ private fun AppTile(
         onClick = onLaunch,
     ) { focused ->
         Box(
-            Modifier.fillMaxSize().background(Palette.Surface)
+            Modifier.fillMaxSize().background(Palette.Surface.copy(alpha = 0.86f))
                 .border(1.dp, Palette.Line, RoundedCornerShape(12.dp)),
             contentAlignment = Alignment.Center,
         ) {
@@ -116,7 +115,7 @@ private fun AppTile(
                 Image(
                     it, app.label, Modifier.size(30.dp),
                     alpha = if (focused) 1f else 0.7f,
-                    colorFilter = if (focused) null else GrayscaleFilter,
+                    colorFilter = if (focused) null else WarmMonochrome,
                 )
             }
         }
