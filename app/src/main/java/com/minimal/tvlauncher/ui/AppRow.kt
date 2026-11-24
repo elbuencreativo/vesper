@@ -51,10 +51,10 @@ fun AppRow(
 ) {
     var focusedLabel by remember { mutableStateOf("") }
     Column(modifier) {
-        Label("APPS", Modifier.padding(start = 48.dp).offset(y = 22.dp), Palette.Accent.copy(alpha = 0.85f), 9.sp, letterSpacing = 2.sp)
-        Spacer(Modifier.height(8.dp))
+        Label("APPS", Modifier.padding(start = 48.dp), Palette.Accent.copy(alpha = 0.85f), 9.sp, letterSpacing = 2.sp)
+        Spacer(Modifier.height(0.dp))
         LazyRow(
-            contentPadding = PaddingValues(horizontal = 48.dp, vertical = 32.dp),
+            contentPadding = PaddingValues(horizontal = 48.dp, vertical = 18.dp),
             horizontalArrangement = Arrangement.spacedBy(14.dp),
         ) {
             items(apps, key = { it.packageName }) { app ->
@@ -85,7 +85,7 @@ fun AppRow(
             }
         }
         Label(
-            focusedLabel, Modifier.padding(start = 48.dp).height(16.dp).offset(y = (-22).dp),
+            focusedLabel, Modifier.padding(start = 48.dp).height(16.dp),
             Palette.TextMuted, 11.sp, letterSpacing = 0.5.sp,
         )
     }

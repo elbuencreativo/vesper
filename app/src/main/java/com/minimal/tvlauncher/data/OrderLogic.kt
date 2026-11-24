@@ -13,7 +13,7 @@ data class ArrangedApps(
 
 object OrderLogic {
     /** Favoritos por defecto del primer arranque (antes de que el usuario elija). */
-    const val DEFAULT_ROW_SIZE = 8
+    const val DEFAULT_ROW_SIZE = 10
     const val MAX_FAVORITES = 10
 
     /**

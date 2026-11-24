@@ -51,7 +51,7 @@ fun FocusTile(
             .graphicsLayer { scaleX = scale; scaleY = scale }
             // Resplandor cálido (naranja de la paleta) solo al enfocar; el contorno es el ámbar de acento.
             .then(
-                if (focused) Modifier.shadow(22.dp, shape, ambientColor = Palette.AccentGlow, spotColor = Palette.AccentGlow)
+                if (focused) Modifier.shadow(14.dp, shape, ambientColor = Palette.AccentGlow, spotColor = Palette.AccentGlow)
                 else Modifier,
             )
             .clip(shape)

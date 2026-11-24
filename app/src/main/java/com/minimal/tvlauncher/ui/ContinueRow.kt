@@ -54,12 +54,12 @@ fun ContinueRow(
 ) {
     Column(modifier) {
         Label(
-            "SEGUIR VIENDO", Modifier.padding(start = 48.dp).offset(y = 22.dp), Palette.Accent.copy(alpha = 0.85f), 9.sp,
+            "SEGUIR VIENDO", Modifier.padding(start = 48.dp), Palette.Accent.copy(alpha = 0.85f), 9.sp,
             letterSpacing = 2.sp,
         )
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(0.dp))
         LazyRow(
-            contentPadding = PaddingValues(horizontal = 48.dp, vertical = 32.dp),
+            contentPadding = PaddingValues(horizontal = 48.dp, vertical = 18.dp),
             horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(14.dp),
         ) {
             itemsIndexed(cards, key = { i, c -> "$i:${c.packageName}:${c.title}" }) { i, card ->

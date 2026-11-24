@@ -63,10 +63,10 @@ class OrderLogicTest {
     }
 
     @Test
-    fun arrange_withoutExplicitFavorites_firstEightVisibleAreTheFavorites_andTheRestAreOthers() {
-        val many = (1..12).map { app("com.app$it", "App%02d".format(it)) }
+    fun arrange_withoutExplicitFavorites_firstTenVisibleAreTheFavorites_andTheRestAreOthers() {
+        val many = (1..14).map { app("com.app$it", "App%02d".format(it)) }
         val r = OrderLogic.arrange(many, emptyList(), emptySet(), emptyList())
-        assertEquals(8, r.row.size)
+        assertEquals(10, r.row.size)
         assertEquals(4, r.others.size)
     }
 
@@ -80,10 +80,10 @@ class OrderLogicTest {
     }
 
     @Test
-    fun arrange_rowIsCappedAtEightVisibleApps() {
+    fun arrange_rowIsCappedAtTenVisibleApps() {
         val many = (1..12).map { app("com.app$it", "App%02d".format(it)) }
         val r = OrderLogic.arrange(many, emptyList(), emptySet(), emptyList())
-        assertEquals(8, r.row.size)
+        assertEquals(10, r.row.size)
         assertEquals(12, r.all.size)
     }
 }

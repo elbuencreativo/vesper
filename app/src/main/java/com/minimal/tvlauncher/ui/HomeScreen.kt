@@ -56,9 +56,8 @@ fun HomeScreen(
             Spacer(Modifier.weight(1f))
             if (cards.isNotEmpty()) {
                 ContinueRow(cards, cardFocus, onCard)
-                Spacer(Modifier.height(18.dp))
             }
-            AppRow(apps.row, appFocus, onLaunch, onClose, onOpenAll, Modifier.padding(bottom = 24.dp))
+            AppRow(apps.row, appFocus, onLaunch, onClose, onOpenAll, Modifier.padding(bottom = 14.dp))
         }
         AnimatedVisibility(
             visible = message != null,
