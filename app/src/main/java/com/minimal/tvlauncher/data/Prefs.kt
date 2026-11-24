@@ -18,6 +18,12 @@ class Prefs(private val store: DataStore<Preferences>) {
     val order: Flow<List<String>> = store.data.map { it[ORDER].toList() }
     val hidden: Flow<Set<String>> = store.data.map { it[HIDDEN] ?: emptySet() }
 
+    val recents: Flow<List<String>> = store.data.map { it[RECENTS].toList() }
+
+    suspend fun setRecents(recents: List<String>) {
+        store.edit { it[RECENTS] = recents.joinToString(SEP) }
+    }
+
     suspend fun setOrder(order: List<String>) {
         store.edit { it[ORDER] = order.joinToString(SEP) }
     }
@@ -33,5 +39,6 @@ class Prefs(private val store: DataStore<Preferences>) {
         const val SEP = "\n"
         val ORDER = stringPreferencesKey("order")
         val HIDDEN = stringSetPreferencesKey("hidden")
+        val RECENTS = stringPreferencesKey("recents")
     }
 }
