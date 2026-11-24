@@ -57,6 +57,10 @@ class HomeActivity : ComponentActivity() {
             shortcuts.open(Shortcut.Bluetooth)
         }
 
+    // Leer "Seguir viendo" real (Watch Next) exige READ_TV_LISTINGS en tiempo de ejecución; al responder se recarga.
+    private val tvListingsPermission =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { vm.refresh() }
+
     /** Sube cada vez que se pulsa HOME estando ya aquí: reconstruye la pantalla y reinicia el foco. */
     private var homeTick by mutableIntStateOf(0)
     private var screen by mutableStateOf(Screen.Home)
@@ -82,6 +86,9 @@ class HomeActivity : ComponentActivity() {
         }
 
         lifecycleScope.launch { guardAgainstCrashLoops() }
+        if (checkSelfPermission(READ_TV_LISTINGS) != PackageManager.PERMISSION_GRANTED) {
+            tvListingsPermission.launch(READ_TV_LISTINGS)
+        }
 
         val icons = IconCache(applicationContext)
         setContent {
@@ -235,6 +242,7 @@ class HomeActivity : ComponentActivity() {
         const val DEFAULT_IDLE_MS = 300_000L
         const val DEFAULT_DARK_MS = 1_200_000L
         const val HEALTHY_AFTER_MS = 8_000L
+        const val READ_TV_LISTINGS = "android.permission.READ_TV_LISTINGS" // oculta en el SDK público
         const val STOCK_HOME_PACKAGE = "com.google.android.apps.tv.launcherx"
     }
 }
