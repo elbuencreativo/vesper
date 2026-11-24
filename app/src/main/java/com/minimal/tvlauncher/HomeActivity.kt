@@ -35,7 +35,9 @@ import com.minimal.tvlauncher.ui.ContinueCard
 import com.minimal.tvlauncher.ui.HomeScreen
 import com.minimal.tvlauncher.ui.IconCache
 import com.minimal.tvlauncher.ui.IdleScreen
+import com.minimal.tvlauncher.ui.LauncherSettingsScreen
 import com.minimal.tvlauncher.ui.LocalIconCache
+import com.minimal.tvlauncher.util.CrashGuard
 import com.minimal.tvlauncher.ui.QuickAction
 import com.minimal.tvlauncher.util.MonotonicClock
 import kotlinx.coroutines.Job
@@ -57,7 +59,7 @@ class HomeActivity : ComponentActivity() {
 
     /** Sube cada vez que se pulsa HOME estando ya aquí: reconstruye la pantalla y reinicia el foco. */
     private var homeTick by mutableIntStateOf(0)
-    private var showAll by mutableStateOf(false)
+    private var screen by mutableStateOf(Screen.Home)
     private var message by mutableStateOf<String?>(null)
     private var messageJob: Job? = null
 
@@ -79,31 +81,39 @@ class HomeActivity : ComponentActivity() {
             }
         }
 
+        lifecycleScope.launch { guardAgainstCrashLoops() }
+
         val icons = IconCache(applicationContext)
         setContent {
             CompositionLocalProvider(LocalIconCache provides remember { icons }) {
                 val idleState by idle.state.collectAsState()
                 Box(Modifier.fillMaxSize()) {
                     key(homeTick) {
-                        if (showAll) {
-                            AllAppsScreen(
+                        when (screen) {
+                            Screen.All -> AllAppsScreen(
                                 apps = vm.apps.all,
                                 hidden = vm.apps.hiddenEntries.mapTo(HashSet()) { it.packageName },
                                 onLaunch = ::launch,
                                 onSaveOrder = vm::saveOrder,
                                 onToggleHidden = vm::toggleHidden,
                                 onUninstall = actions::uninstall,
-                                onBack = { showAll = false },
+                                onBack = { screen = Screen.Home },
                             )
-                        } else {
-                            HomeScreen(
+                            Screen.Settings -> LauncherSettingsScreen(
+                                hiddenCount = vm.apps.hiddenEntries.size,
+                                versionName = BuildConfig.VERSION_NAME,
+                                onUnhideAll = vm::unhideAll,
+                                onChooseHome = { if (!shortcuts.open(Shortcut.ChooseHome)) flash("No se pudo abrir los ajustes") },
+                                onBack = { screen = Screen.Home },
+                            )
+                            Screen.Home -> HomeScreen(
                                 apps = vm.apps,
                                 cards = vm.cards,
                                 onAction = ::quickAction,
                                 onCard = ::openCard,
                                 onLaunch = ::launch,
                                 onClose = ::close,
-                                onOpenAll = { showAll = true },
+                                onOpenAll = { screen = Screen.All },
                                 message = message,
                             )
                         }
@@ -129,7 +139,7 @@ class HomeActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         idle.onUserInput()
-        showAll = false
+        screen = Screen.Home
         homeTick++
     }
 
@@ -162,7 +172,10 @@ class HomeActivity : ComponentActivity() {
                 Shortcut.Bluetooth
             }
             QuickAction.AndroidSettings -> Shortcut.AndroidSettings
-            QuickAction.LauncherSettings -> return // Task 11
+            QuickAction.LauncherSettings -> {
+                screen = Screen.Settings
+                return
+            }
         }
         if (!shortcuts.open(shortcut)) flash("No se pudo abrir los ajustes")
     }
@@ -199,8 +212,29 @@ class HomeActivity : ComponentActivity() {
         }
     }
 
+    /** Salvavidas: tras varios arranques fallidos seguidos, cede el control al home original de Google TV. */
+    private suspend fun guardAgainstCrashLoops() {
+        val guard = CrashGuard(vm.prefs, MonotonicClock)
+        guard.onStart()
+        if (guard.shouldYieldToStock()) {
+            guard.markHealthy()
+            val stock = Intent(Intent.ACTION_MAIN)
+            stock.addCategory(Intent.CATEGORY_HOME)
+            stock.setPackage(STOCK_HOME_PACKAGE)
+            stock.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            if (runCatching { startActivity(stock) }.isSuccess) finish()
+            return
+        }
+        delay(HEALTHY_AFTER_MS)
+        guard.markHealthy()
+    }
+
+    private enum class Screen { Home, All, Settings }
+
     private companion object {
         const val DEFAULT_IDLE_MS = 300_000L
         const val DEFAULT_DARK_MS = 1_200_000L
+        const val HEALTHY_AFTER_MS = 8_000L
+        const val STOCK_HOME_PACKAGE = "com.google.android.apps.tv.launcherx"
     }
 }

@@ -23,6 +23,13 @@ class SystemShortcutsTest {
     }
 
     @Test
+    fun targetsFor_chooseHome_opensDefaultHomeAppScreen_withGeneralSettingsAsFallback() {
+        val targets = targetsFor(Shortcut.ChooseHome)
+        assertEquals(Target.ByAction("android.settings.HOME_SETTINGS"), targets.first())
+        assertEquals(Target.ByAction("android.settings.SETTINGS"), targets.last())
+    }
+
+    @Test
     fun targetsFor_bluetoothTriesAccessoryScreenBeforeGeneralSettings() {
         val targets = targetsFor(Shortcut.Bluetooth)
         val accessory = Target.ByAction("com.google.android.intent.action.CONNECT_INPUT")

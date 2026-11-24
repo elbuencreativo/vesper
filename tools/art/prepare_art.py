@@ -88,10 +88,17 @@ def select_open_access(rows, n=20):
             per_artist[r["artist"]] += 1
             capped.append(r)
 
-    buckets = {}
-    for r in capped:
-        buckets.setdefault(r["year"] // 100, []).append(r)
+    # Primero las obras con escena (paisajes, vistas), repartidas por siglos; si faltan, se completa con el resto.
+    picked = _spread_by_century([r for r in capped if _scenic(r.get("title")) == 0], n)
+    if len(picked) < n:
+        picked += _spread_by_century([r for r in capped if _scenic(r.get("title")) != 0], n - len(picked))
+    return picked
 
+
+def _spread_by_century(rows, n):
+    buckets = {}
+    for r in rows:
+        buckets.setdefault(r["year"] // 100, []).append(r)
     picked = []
     while len(picked) < n and any(buckets.values()):
         for century in sorted(buckets):

@@ -1,122 +1,122 @@
 [
   {
     "file": "art01.jpg",
-    "title": "Still Life with Plums",
-    "artist": "Jacques Linard",
-    "year": "first half 17th century"
-  },
-  {
-    "file": "art02.jpg",
-    "title": "The Nativity with the Prophets Isaiah and Ezekiel",
-    "artist": "Duccio di Buoninsegna",
-    "year": "1308-1311"
-  },
-  {
-    "file": "art03.jpg",
-    "title": "The Adoration of the Magi",
-    "artist": "Sandro Botticelli",
-    "year": "c. 1478/1482"
-  },
-  {
-    "file": "art04.jpg",
     "title": "Circe and Her Lovers in a Landscape",
     "artist": "Dosso Dossi",
     "year": "c. 1525"
   },
   {
-    "file": "art05.jpg",
+    "file": "art02.jpg",
     "title": "Harbor at Sunset",
     "artist": "Follower of Claude Lorrain",
     "year": "late 17th century"
   },
   {
-    "file": "art06.jpg",
+    "file": "art03.jpg",
     "title": "Entrance to the Grand Canal from the Molo, Venice",
     "artist": "Canaletto",
     "year": "1742/1744"
   },
   {
-    "file": "art07.jpg",
+    "file": "art04.jpg",
     "title": "Cliffs at Pourville",
     "artist": "Claude Monet",
     "year": "1882"
   },
   {
-    "file": "art08.jpg",
+    "file": "art05.jpg",
     "title": "Village at the Water's Edge",
     "artist": "Roger de La Fresnaye",
     "year": "1910"
   },
   {
-    "file": "art09.jpg",
-    "title": "Saint Benedict Orders Saint Maurus to the Rescue of Saint Placidus",
-    "artist": "Fra Filippo Lippi",
-    "year": "c. 1445/1450"
-  },
-  {
-    "file": "art10.jpg",
+    "file": "art06.jpg",
     "title": "River Landscape",
     "artist": "Annibale Carracci",
     "year": "c. 1590"
   },
   {
-    "file": "art11.jpg",
+    "file": "art07.jpg",
     "title": "Landscape with Merchants",
     "artist": "Claude Lorrain",
     "year": "c. 1629"
   },
   {
-    "file": "art12.jpg",
+    "file": "art08.jpg",
     "title": "The Square of Saint Mark's, Venice",
     "artist": "Canaletto",
     "year": "1742/1744"
   },
   {
-    "file": "art13.jpg",
+    "file": "art09.jpg",
     "title": "Morning Haze",
     "artist": "Claude Monet",
     "year": "1888"
   },
   {
-    "file": "art14.jpg",
+    "file": "art10.jpg",
     "title": "The Watering Can (Emblems: The Garden)",
     "artist": "Roger de La Fresnaye",
     "year": "1913"
   },
   {
-    "file": "art15.jpg",
-    "title": "The Healing of Palladia by Saint Cosmas and Saint Damian",
-    "artist": "Fra Angelico",
-    "year": "c. 1438/1440"
-  },
-  {
-    "file": "art16.jpg",
+    "file": "art11.jpg",
     "title": "Christ at the Sea of Galilee",
     "artist": "Circle of Jacopo Tintoretto (Probably Lambert Sustris)",
     "year": "c. 1570s"
   },
   {
-    "file": "art17.jpg",
+    "file": "art12.jpg",
     "title": "Dunes by the Sea",
     "artist": "Jacob van Ruisdael",
     "year": "1648"
   },
   {
-    "file": "art18.jpg",
+    "file": "art13.jpg",
     "title": "View on the Cannaregio Canal, Venice",
     "artist": "Francesco Guardi",
     "year": "c. 1775-1780"
   },
   {
-    "file": "art19.jpg",
+    "file": "art14.jpg",
     "title": "Cloud Study: Stormy Sunset",
     "artist": "John Constable",
     "year": "1821-1822"
   },
   {
-    "file": "art20.jpg",
+    "file": "art15.jpg",
     "title": "Boathouse, Winter, Harlem River",
     "artist": "Ernest Lawson",
     "year": "c. 1916"
+  },
+  {
+    "file": "art16.jpg",
+    "title": "Madonna and Child and the Infant Saint John in a Landscape",
+    "artist": "Polidoro Lanzani",
+    "year": "1540/1550"
+  },
+  {
+    "file": "art17.jpg",
+    "title": "River Landscape with Cows",
+    "artist": "Aelbert Cuyp",
+    "year": "1645/1650"
+  },
+  {
+    "file": "art18.jpg",
+    "title": "Rialto Bridge, Venice",
+    "artist": "Follower of Francesco Guardi",
+    "year": "c. 1770/1800"
+  },
+  {
+    "file": "art19.jpg",
+    "title": "A View of the Mountain Pass Called the Notch of the White Mountains (Crawford Notch)",
+    "artist": "Thomas Cole",
+    "year": "1839"
+  },
+  {
+    "file": "art20.jpg",
+    "title": "Landscape with Figures",
+    "artist": "Maurice Prendergast",
+    "year": "1921"
   }
 ]

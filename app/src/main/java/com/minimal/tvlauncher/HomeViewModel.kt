@@ -55,6 +55,13 @@ class HomeViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    fun unhideAll() {
+        viewModelScope.launch {
+            prefs.setHidden(emptySet())
+            refresh()
+        }
+    }
+
     fun recordLaunch(packageName: String) {
         viewModelScope.launch { recents.record(packageName) }
     }

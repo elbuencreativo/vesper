@@ -20,6 +20,14 @@ class Prefs(private val store: DataStore<Preferences>) {
 
     val recents: Flow<List<String>> = store.data.map { it[RECENTS].toList() }
 
+    /** Marcas de tiempo (reloj monotónico) de los últimos arranques, para el salvavidas de arranque. */
+    val startTimes: Flow<List<Long>> =
+        store.data.map { prefs -> prefs[STARTS].toList().mapNotNull { it.toLongOrNull() } }
+
+    suspend fun setStartTimes(times: List<Long>) {
+        store.edit { it[STARTS] = times.joinToString(SEP) }
+    }
+
     suspend fun setRecents(recents: List<String>) {
         store.edit { it[RECENTS] = recents.joinToString(SEP) }
     }
@@ -40,5 +48,6 @@ class Prefs(private val store: DataStore<Preferences>) {
         val ORDER = stringPreferencesKey("order")
         val HIDDEN = stringSetPreferencesKey("hidden")
         val RECENTS = stringPreferencesKey("recents")
+        val STARTS = stringPreferencesKey("starts")
     }
 }

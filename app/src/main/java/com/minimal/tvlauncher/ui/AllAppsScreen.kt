@@ -222,7 +222,7 @@ private fun ActionMenu(
 }
 
 @Composable
-private fun MenuItem(text: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+internal fun MenuItem(text: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
     FocusTile(RoundedCornerShape(10.dp), modifier.fillMaxWidth(), onClick = onClick) { focused ->
         Box(
             Modifier.fillMaxWidth().background(if (focused) Color(0xFF2A2A31) else Color.Transparent)
