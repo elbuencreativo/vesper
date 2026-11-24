@@ -1,0 +1,4 @@
+# Perfil de arranque escrito a mano: todo el código del launcher se marca como caliente/arranque
+# para que se compile antes de ejecutarse (AOT). Compose y AndroidX aportan sus propios perfiles.
+HSPLcom/minimal/tvlauncher/**;->**(**)**
+Lcom/minimal/tvlauncher/**;
