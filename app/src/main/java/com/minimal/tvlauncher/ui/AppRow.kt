@@ -162,10 +162,10 @@ private fun TextAppTile(
     ) { focused ->
         // Casilla de ancho fijo: todos los nombres ocupan lo mismo (hasta 2 líneas) y forman una rejilla.
         Column(
-            Modifier.width(TEXT_TILE_WIDTH).fillMaxHeight().padding(horizontal = 6.dp),
-            verticalArrangement = Arrangement.Center,
+            Modifier.width(TEXT_TILE_WIDTH).fillMaxHeight().padding(start = 6.dp, end = 6.dp, bottom = 7.dp),
+            verticalArrangement = Arrangement.Bottom, // el subrayado fija la base; el texto crece hacia arriba
         ) {
-            androidx.compose.foundation.layout.Row(Modifier.height(36.dp), verticalAlignment = Alignment.Top) {
+            androidx.compose.foundation.layout.Row(verticalAlignment = Alignment.Top) {
                 Box(Modifier.padding(top = 6.dp).size(7.dp).background(brand, CircleShape))
                 Spacer(Modifier.size(8.dp))
                 Label(
@@ -176,7 +176,7 @@ private fun TextAppTile(
                     maxLines = 2,
                 )
             }
-            Spacer(Modifier.height(4.dp))
+            Spacer(Modifier.height(3.dp))
             Box(Modifier.height(2.dp).fillMaxWidth().background(if (focused) brand else androidx.compose.ui.graphics.Color.Transparent))
         }
     }
