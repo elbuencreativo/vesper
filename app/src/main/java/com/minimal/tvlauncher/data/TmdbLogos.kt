@@ -17,10 +17,11 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 /**
- * Elige el mejor logo de la lista `logos` de TMDB: solo PNG (los SVG no se decodifican), preferido en español,
- * luego en inglés, luego sin idioma; dentro de cada idioma, el de mejor voto.
+ * Elige el mejor logo de la lista `logos` de TMDB: solo PNG (los SVG no se decodifican), preferido en el idioma
+ * original del programa ([originalLanguage]), luego en inglés, luego sin idioma; dentro de cada idioma, el de mejor voto.
+ * Nada se traduce: se muestra el título tal como lo publicó su país de origen.
  */
-fun pickLogoPath(logos: JSONArray): String? {
+fun pickLogoPath(logos: JSONArray, originalLanguage: String = "en"): String? {
     var best: JSONObject? = null
     var bestScore = Double.NEGATIVE_INFINITY
     for (i in 0 until logos.length()) {
@@ -28,7 +29,7 @@ fun pickLogoPath(logos: JSONArray): String? {
         val path = l.optString("file_path")
         if (!path.endsWith(".png", ignoreCase = true)) continue
         val lang = if (l.isNull("iso_639_1")) "" else l.optString("iso_639_1")
-        val langScore = when (lang) { "es" -> 300.0; "en" -> 200.0; "" -> 100.0; else -> 0.0 }
+        val langScore = when (lang) { originalLanguage -> 300.0; "en" -> 200.0; "" -> 100.0; else -> 0.0 }
         val score = langScore + l.optDouble("vote_average", 0.0)
         if (score > bestScore) { best = l; bestScore = score }
     }
@@ -40,7 +41,7 @@ fun pickLogoPath(logos: JSONArray): String? {
  * en disco (también guarda "no hay logo" una semana para no repetir la búsqueda). Sin clave o sin red devuelve null.
  */
 class LogoRepository(context: Context, private val apiKey: String) {
-    private val dir = File(context.cacheDir, "logos").apply { mkdirs() }
+    private val dir = File(context.cacheDir, "logos-orig").apply { mkdirs() }
     private val memory = LruCache<String, ImageBitmap>(32)
 
     val available: Boolean get() = apiKey.isNotBlank()
@@ -63,15 +64,16 @@ class LogoRepository(context: Context, private val apiKey: String) {
         if (none.exists() && System.currentTimeMillis() - none.lastModified() < NONE_TTL_MS) return null
 
         val q = URLEncoder.encode(name, "UTF-8")
-        val results = JSONObject(fetch("$API/search/multi?api_key=$apiKey&language=es&query=$q")).optJSONArray("results")
+        val results = JSONObject(fetch("$API/search/multi?api_key=$apiKey&language=en-US&query=$q")).optJSONArray("results")
         var hit: JSONObject? = null
         if (results != null) for (i in 0 until results.length()) {
             val r = results.optJSONObject(i) ?: continue
             if (r.optString("media_type") == "tv" || r.optString("media_type") == "movie") { hit = r; break }
         }
+        val original = hit?.optString("original_language").orEmpty().ifEmpty { "en" }
         val path = hit?.let {
-            val images = JSONObject(fetch("$API/${it.getString("media_type")}/${it.getInt("id")}/images?api_key=$apiKey&include_image_language=es,en,null"))
-            images.optJSONArray("logos")?.let(::pickLogoPath)
+            val images = JSONObject(fetch("$API/${it.getString("media_type")}/${it.getInt("id")}/images?api_key=$apiKey&include_image_language=$original,en,null"))
+            images.optJSONArray("logos")?.let { l -> pickLogoPath(l, original) }
         }
         if (path == null) { none.writeText(""); return null }
         val bytes = URL("$IMAGES$path").openConnection().run {

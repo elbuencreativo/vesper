@@ -59,14 +59,15 @@ class WatchNextMappingTest {
     }
 
     @Test
-    fun pickLogoPath_prefersSpanishThenEnglishAndSkipsSvg() {
+    fun pickLogoPath_prefersOriginalLanguageThenEnglishAndSkipsSvg() {
         val logos = org.json.JSONArray(
             """[{"file_path":"/a.svg","iso_639_1":"es","vote_average":9},
                 {"file_path":"/b.png","iso_639_1":"en","vote_average":8},
                 {"file_path":"/c.png","iso_639_1":"es","vote_average":1},
                 {"file_path":"/d.png","iso_639_1":null,"vote_average":10}]""",
         )
-        assertEquals("/c.png", pickLogoPath(logos))
+        assertEquals("/b.png", pickLogoPath(logos)) // original por defecto: inglés
+        assertEquals("/c.png", pickLogoPath(logos, "es"))
         assertNull(pickLogoPath(org.json.JSONArray("""[{"file_path":"/x.svg","iso_639_1":"en"}]""")))
     }
 }
