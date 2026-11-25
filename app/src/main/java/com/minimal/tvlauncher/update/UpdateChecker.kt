@@ -1,11 +1,13 @@
 package com.minimal.tvlauncher.update
 
+import android.app.PendingIntent
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageInstaller
 import android.net.Uri
+import android.os.Build
 import android.provider.Settings
-import androidx.core.content.FileProvider
 import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
@@ -45,16 +47,33 @@ class UpdateChecker(private val context: Context, private val manifestUrl: Strin
         false
     }
 
+    /**
+     * Instala con una sesión de PackageInstaller marcada como "tienda" (API 33+): así Android no trata a
+     * Vesper como app de origen externo y no le bloquea los permisos de accesibilidad (tecla HOME).
+     */
     fun install(apk: File): Boolean = try {
-        val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", apk)
-        val intent = Intent(Intent.ACTION_VIEW)
-        intent.setDataAndType(uri, "application/vnd.android.package-archive")
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
-        context.startActivity(intent)
+        val installer = context.packageManager.packageInstaller
+        val params = PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL)
+        params.setAppPackageName(context.packageName)
+        if (Build.VERSION.SDK_INT >= 33) params.setPackageSource(PackageInstaller.PACKAGE_SOURCE_STORE)
+        val id = installer.createSession(params)
+        installer.openSession(id).use { session ->
+            apk.inputStream().use { input ->
+                session.openWrite("vesper.apk", 0, apk.length()).use { out ->
+                    input.copyTo(out)
+                    session.fsync(out)
+                }
+            }
+            val result = Intent(context, InstallResultReceiver::class.java).setPackage(context.packageName)
+            val pending = PendingIntent.getBroadcast(
+                context, id, result, PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+            )
+            session.commit(pending.intentSender)
+        }
         true
-    } catch (_: ActivityNotFoundException) {
+    } catch (_: java.io.IOException) {
         false
-    } catch (_: IllegalArgumentException) {
+    } catch (_: SecurityException) {
         false
     }
 

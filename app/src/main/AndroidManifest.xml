@@ -47,6 +47,8 @@
             </intent-filter>
         </activity>
 
+        <receiver android:name=".update.InstallResultReceiver" android:exported="false" />
+
         <!-- Comparte el APK descargado con el instalador del sistema (solo la carpeta de actualizaciones). -->
         <provider
             android:name="androidx.core.content.FileProvider"
