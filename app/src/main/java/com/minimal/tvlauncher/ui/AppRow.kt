@@ -181,7 +181,7 @@ private fun TextAppTile(
     val icon by produceState<AppIcon?>(null, app.packageName) { value = icons.getAppIcon(app.packageName) }
     val brand = icon?.brand?.let { androidx.compose.ui.graphics.Color(it) } ?: Palette.Accent
     FocusTile(
-        RoundedCornerShape(6.dp), modifier.height(52.dp),
+        RoundedCornerShape(6.dp), modifier.height(36.dp),
         onFocusChange = { if (it) onFocus() },
         onLongClick = onClose,
         onClick = onLaunch,
@@ -189,7 +189,7 @@ private fun TextAppTile(
     ) { focused ->
         // Casilla de ancho fijo: todos los nombres ocupan lo mismo (hasta 2 líneas) y forman una rejilla.
         Column(
-            Modifier.width(tileWidth).fillMaxHeight().padding(start = 6.dp, end = 6.dp, bottom = 7.dp),
+            Modifier.width(tileWidth).fillMaxHeight().padding(start = 6.dp, end = 6.dp, bottom = 5.dp),
             verticalArrangement = Arrangement.Bottom, // el subrayado fija la base; el texto crece hacia arriba
         ) {
             androidx.compose.foundation.layout.Row(verticalAlignment = Alignment.Top) {
@@ -200,10 +200,10 @@ private fun TextAppTile(
                     color = if (focused) Palette.Text else TEXT_SEPIA_TEXT,
                     size = 14.sp,
                     weight = if (focused) androidx.compose.ui.text.font.FontWeight.Medium else androidx.compose.ui.text.font.FontWeight.Normal,
-                    maxLines = 2,
+                    maxLines = 1,
                 )
             }
-            Spacer(Modifier.height(3.dp))
+            Spacer(Modifier.height(4.5.dp))
             Box(Modifier.height(2.dp).fillMaxWidth().background(if (focused) brand else androidx.compose.ui.graphics.Color.Transparent))
         }
     }
