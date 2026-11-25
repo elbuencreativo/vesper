@@ -88,16 +88,19 @@ fun DualClock(primary: City, secondary: City?, modifier: Modifier = Modifier) {
         SimpleDateFormat("HH:mm", Locale.getDefault()).apply { timeZone = TimeZone.getTimeZone(city.zoneId) }.format(now)
     val date = SimpleDateFormat("EEE d MMM", Locale("es")).apply { timeZone = TimeZone.getTimeZone(primary.zoneId) }
         .format(now).uppercase()
-    Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-        Label(date, color = Palette.TextMuted.copy(alpha = 0.8f), size = 9.sp, letterSpacing = 1.5.sp)
-        Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Label(primary.name.uppercase(), color = Palette.TextMuted.copy(alpha = 0.8f), size = 8.sp, letterSpacing = 1.5.sp, modifier = Modifier.padding(bottom = 4.dp))
-            Label(timeIn(primary), color = Palette.TextMuted, size = 24.sp, weight = FontWeight.Bold, letterSpacing = 1.sp)
-        }
-        if (secondary != null) {
-            Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                Label(secondary.name.uppercase(), color = Palette.TextMuted.copy(alpha = 0.7f), size = 7.sp, letterSpacing = 1.5.sp, modifier = Modifier.padding(bottom = 2.dp))
-                Label(timeIn(secondary), color = Palette.TextMuted.copy(alpha = 0.85f), size = 14.sp, weight = FontWeight.Bold, letterSpacing = 1.sp)
+    // Fecha a la izquierda de los relojes; ambos bloques comparten la misma línea inferior.
+    Row(modifier, verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(20.dp)) {
+        Label(date, color = Palette.TextMuted.copy(alpha = 0.85f), size = 10.sp, letterSpacing = 1.5.sp, modifier = Modifier.padding(bottom = 3.dp))
+        Column(horizontalAlignment = Alignment.End) {
+            Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Label(primary.name.uppercase(), color = Palette.TextMuted.copy(alpha = 0.8f), size = 8.sp, letterSpacing = 1.5.sp, modifier = Modifier.padding(bottom = 4.dp))
+                Label(timeIn(primary), color = Palette.TextMuted, size = 24.sp, weight = FontWeight.Bold, letterSpacing = 1.sp)
+            }
+            if (secondary != null) {
+                Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Label(secondary.name.uppercase(), color = Palette.TextMuted.copy(alpha = 0.7f), size = 7.sp, letterSpacing = 1.5.sp, modifier = Modifier.padding(bottom = 2.dp))
+                    Label(timeIn(secondary), color = Palette.TextMuted.copy(alpha = 0.85f), size = 14.sp, weight = FontWeight.Bold, letterSpacing = 1.sp)
+                }
             }
         }
     }
