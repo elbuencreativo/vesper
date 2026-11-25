@@ -65,9 +65,9 @@ fun AppBackground(art: ArtRepository, modifier: Modifier = Modifier, clear: Bool
         Box(
             Modifier.fillMaxSize().background(
                 Brush.verticalGradient(
-                    0f to Palette.Navy.copy(alpha = SCRIM_TOP * strength),
-                    0.5f to Palette.Wine900.copy(alpha = SCRIM_MID * strength),
-                    1f to Palette.Navy.copy(alpha = SCRIM_BOTTOM * strength),
+                    0f to Palette.Navy.copy(alpha = (if (Palette.dark) 0.62f else SCRIM_TOP) * strength),
+                    0.5f to Palette.Wine900.copy(alpha = (if (Palette.dark) 0.74f else SCRIM_MID) * strength),
+                    1f to Palette.Navy.copy(alpha = (if (Palette.dark) 0.94f else SCRIM_BOTTOM) * strength),
                 ),
             ),
         )

@@ -41,6 +41,19 @@ class HomeViewModel(app: Application) : AndroidViewModel(app) {
     var cards by mutableStateOf<List<ContinueCard>>(emptyList())
         private set
 
+    var display by mutableStateOf(com.minimal.tvlauncher.data.DisplaySettings())
+        private set
+
+    init {
+        viewModelScope.launch { prefs.display.collect { display = it } }
+    }
+
+    fun updateDisplay(change: (com.minimal.tvlauncher.data.DisplaySettings) -> com.minimal.tvlauncher.data.DisplaySettings) {
+        val next = change(display)
+        display = next
+        viewModelScope.launch { prefs.setDisplay(next) }
+    }
+
     fun refresh() {
         viewModelScope.launch {
             val installed = withContext(Dispatchers.IO) { catalog.installed() }

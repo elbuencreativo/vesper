@@ -3,6 +3,9 @@ package com.minimal.tvlauncher.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import com.minimal.tvlauncher.data.City
+import java.util.TimeZone
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -69,4 +72,33 @@ fun Clock(modifier: Modifier = Modifier, color: Color = Palette.TextMuted) {
     }
     val format = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
     Label(format.format(now), modifier, color, 24.sp, weight = FontWeight.Bold, letterSpacing = 1.sp)
+}
+
+/** Reloj principal con la fecha y, opcional, uno secundario más pequeño debajo. La fecha se muestra una sola vez. */
+@Composable
+fun DualClock(primary: City, secondary: City?, modifier: Modifier = Modifier) {
+    var now by remember { mutableStateOf(Date()) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            now = Date()
+            delay(10_000)
+        }
+    }
+    fun timeIn(city: City): String =
+        SimpleDateFormat("HH:mm", Locale.getDefault()).apply { timeZone = TimeZone.getTimeZone(city.zoneId) }.format(now)
+    val date = SimpleDateFormat("EEE d MMM", Locale("es")).apply { timeZone = TimeZone.getTimeZone(primary.zoneId) }
+        .format(now).uppercase()
+    Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+        Label(date, color = Palette.TextMuted.copy(alpha = 0.8f), size = 9.sp, letterSpacing = 1.5.sp)
+        Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Label(primary.name.uppercase(), color = Palette.TextMuted.copy(alpha = 0.8f), size = 8.sp, letterSpacing = 1.5.sp, modifier = Modifier.padding(bottom = 4.dp))
+            Label(timeIn(primary), color = Palette.TextMuted, size = 24.sp, weight = FontWeight.Bold, letterSpacing = 1.sp)
+        }
+        if (secondary != null) {
+            Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                Label(secondary.name.uppercase(), color = Palette.TextMuted.copy(alpha = 0.7f), size = 7.sp, letterSpacing = 1.5.sp, modifier = Modifier.padding(bottom = 2.dp))
+                Label(timeIn(secondary), color = Palette.TextMuted.copy(alpha = 0.85f), size = 14.sp, weight = FontWeight.Bold, letterSpacing = 1.sp)
+            }
+        }
+    }
 }

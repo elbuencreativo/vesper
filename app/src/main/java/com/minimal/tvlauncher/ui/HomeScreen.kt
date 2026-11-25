@@ -43,6 +43,8 @@ fun HomeScreen(
     refocusKey: Int = 0,
     focusBlocked: Boolean = false,
     message: String? = null,
+    primaryCity: com.minimal.tvlauncher.data.City = com.minimal.tvlauncher.data.Cities.all[0],
+    secondaryCity: com.minimal.tvlauncher.data.City? = null,
 ) {
     // Conserva el último texto para que el aviso no quede vacío mientras se desvanece.
     val lastMessage = remember { androidx.compose.runtime.mutableStateOf("") }
@@ -87,7 +89,7 @@ fun HomeScreen(
         }
         }
         // Reloj abajo a la derecha, centrado con la barra de apps.
-        Clock(Modifier.align(Alignment.BottomEnd).padding(end = 48.dp, bottom = 58.dp))
+        DualClock(primaryCity, secondaryCity, Modifier.align(Alignment.BottomEnd).padding(end = 48.dp, bottom = 47.dp))
         AnimatedVisibility(
             visible = message != null,
             enter = fadeIn(tween(180)),

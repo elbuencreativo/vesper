@@ -1,7 +1,17 @@
 package com.minimal.tvlauncher
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
+import android.os.UserManager
+import com.minimal.tvlauncher.data.Cities
+import com.minimal.tvlauncher.data.ThemeLogic
+import com.minimal.tvlauncher.ui.Greeting
+import com.minimal.tvlauncher.ui.Palette
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.LaunchedEffect
+import com.minimal.tvlauncher.data.greetingNameFor
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -85,6 +95,24 @@ class HomeActivity : ComponentActivity() {
     private var menuTick by mutableIntStateOf(0)
     private var message by mutableStateOf<String?>(null)
     private var messageJob: Job? = null
+    private var greetingVisible by mutableStateOf(false)
+    private var greetingJob: Job? = null
+
+    /** Muestra el saludo unos segundos si está activado (los ajustes pueden tardar un instante en cargar). */
+    private fun greet() {
+        greetingJob?.cancel()
+        greetingJob = lifecycleScope.launch {
+            delay(900)
+            if (!vm.display.greetingEnabled) return@launch
+            greetingVisible = true
+            delay(5_500)
+            greetingVisible = false
+        }
+    }
+
+    /** Nombre del perfil de Android en uso, o null si no se puede leer. */
+    private fun profileName(): String? =
+        runCatching { (getSystemService(Context.USER_SERVICE) as UserManager).userName }.getOrNull()
 
     /** Tecla que despertó el reposo: se descarta también su "soltar" (y repeticiones). */
     private var swallowedKey = -1
@@ -104,6 +132,7 @@ class HomeActivity : ComponentActivity() {
             }
         }
 
+        if (savedInstanceState == null) greet()
         lifecycleScope.launch { guardAgainstCrashLoops() }
         if (checkSelfPermission(READ_TV_LISTINGS) != PackageManager.PERMISSION_GRANTED) {
             tvListingsPermission.launch(READ_TV_LISTINGS)
@@ -114,6 +143,20 @@ class HomeActivity : ComponentActivity() {
         setContent {
             CompositionLocalProvider(LocalIconCache provides remember { icons }, LocalPosterLoader provides remember { posters }) {
                 val idleState by idle.state.collectAsState()
+                // Tema: claro de 6 am a 6 pm, oscuro de 6 pm a 6 am (según la hora del reloj principal), o fijo.
+                LaunchedEffect(vm.display.themeMode, vm.display.primaryCity) {
+                    val zone = Cities.byName(vm.display.primaryCity)?.zoneId ?: "UTC"
+                    while (true) {
+                        Palette.dark = ThemeLogic.isDarkNow(vm.display.themeMode, zone, System.currentTimeMillis())
+                        delay(30_000)
+                    }
+                }
+                // Saludo al encender y al despertar del reposo oscuro.
+                var previousIdle by remember { mutableStateOf(IdleState.Active) }
+                LaunchedEffect(idleState) {
+                    if (previousIdle == IdleState.Dark && idleState == IdleState.Active) greet()
+                    previousIdle = idleState
+                }
                 // Aviso de versión nueva (una vez por versión) y, al abrir los ajustes con una versión nueva conocida,
                 // se carga su información para poder ofrecer "Instalar".
                 LaunchedEffect(vm.updateNotice) {
@@ -158,6 +201,9 @@ class HomeActivity : ComponentActivity() {
                                 updateBusy = vm.updateBusy,
                                 onCheckUpdate = vm::checkForUpdate,
                                 onInstallUpdate = vm::installUpdate,
+                                display = vm.display,
+                                profileName = profileName(),
+                                onDisplay = vm::updateDisplay,
                                 onBack = { screen = Screen.Home },
                             )
                             Screen.Home -> HomeScreen(
@@ -174,6 +220,8 @@ class HomeActivity : ComponentActivity() {
                                 refocusKey = menuTick,
                                 focusBlocked = homeMenu || cardMenu != null,
                                 message = message,
+                                primaryCity = Cities.byName(vm.display.primaryCity) ?: Cities.all[0],
+                                secondaryCity = Cities.byName(vm.display.secondaryCity),
                             )
                         }
                     }
@@ -199,6 +247,7 @@ class HomeActivity : ComponentActivity() {
                             onDismiss = { cardMenu = null; menuTick++ },
                         )
                     }
+                    Greeting(greetingVisible, greetingNameFor(vm.display, profileName()))
                     IdleScreen(idleState, art)
                 }
             }
@@ -236,6 +285,7 @@ class HomeActivity : ComponentActivity() {
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         when (event.action) {
             KeyEvent.ACTION_DOWN -> {
+                if (greetingVisible) { greetingJob?.cancel(); greetingVisible = false }
                 if (idle.onUserInput() && event.repeatCount == 0) swallowedKey = event.keyCode
                 if (event.keyCode == swallowedKey) return true
                 if (artMode && event.repeatCount == 0) {

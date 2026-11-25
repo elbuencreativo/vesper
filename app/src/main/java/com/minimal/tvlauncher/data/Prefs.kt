@@ -3,6 +3,7 @@ package com.minimal.tvlauncher.data
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
@@ -101,6 +102,30 @@ class Prefs(private val store: DataStore<Preferences>) {
         store.edit { it[HIDDEN] = hidden }
     }
 
+    val display: Flow<DisplaySettings> = store.data.map { p ->
+        val d = DisplaySettings()
+        DisplaySettings(
+            primaryCity = p[PRIMARY_CITY] ?: d.primaryCity,
+            secondaryCity = if (p[SECONDARY_SET] == true) p[SECONDARY_CITY]?.ifEmpty { null } else d.secondaryCity,
+            greetingEnabled = p[GREETING_ON] ?: d.greetingEnabled,
+            greetingName = p[GREETING_NAME] ?: d.greetingName,
+            useProfileName = p[USE_PROFILE] ?: d.useProfileName,
+            themeMode = p[THEME]?.let { name -> ThemeMode.entries.firstOrNull { it.name == name } } ?: d.themeMode,
+        )
+    }
+
+    suspend fun setDisplay(s: DisplaySettings) {
+        store.edit {
+            it[PRIMARY_CITY] = s.primaryCity
+            it[SECONDARY_SET] = true
+            it[SECONDARY_CITY] = s.secondaryCity.orEmpty()
+            it[GREETING_ON] = s.greetingEnabled
+            it[GREETING_NAME] = s.greetingName
+            it[USE_PROFILE] = s.useProfileName
+            it[THEME] = s.themeMode.name
+        }
+    }
+
     private fun String?.toList(): List<String> =
         if (isNullOrEmpty()) emptyList() else split(SEP)
 
@@ -115,6 +140,13 @@ class Prefs(private val store: DataStore<Preferences>) {
         private val DISMISSED = stringPreferencesKey("dismissed")
         private val LAST_UPDATE_CHECK = longPreferencesKey("last_update_check")
         private val KNOWN_UPDATE = stringPreferencesKey("known_update")
+        private val PRIMARY_CITY = stringPreferencesKey("primary_city")
+        private val SECONDARY_CITY = stringPreferencesKey("secondary_city")
+        private val SECONDARY_SET = booleanPreferencesKey("secondary_set")
+        private val GREETING_ON = booleanPreferencesKey("greeting_on")
+        private val GREETING_NAME = stringPreferencesKey("greeting_name")
+        private val USE_PROFILE = booleanPreferencesKey("use_profile_name")
+        private val THEME = stringPreferencesKey("theme_mode")
         private val ANNOUNCED_UPDATE = intPreferencesKey("announced_update")
     }
 }
