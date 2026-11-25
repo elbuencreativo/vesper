@@ -85,19 +85,17 @@ fun AppBackground(art: ArtRepository, modifier: Modifier = Modifier, clear: Bool
 @Composable
 private fun ArtCaption(work: ArtWork) {
     Box(
-        Modifier.fillMaxWidth().height(170.dp)
+        Modifier.fillMaxWidth().height(120.dp)
             .background(Brush.verticalGradient(listOf(Color.Transparent, Palette.Navy.copy(alpha = 0.78f)))),
         contentAlignment = Alignment.BottomStart,
     ) {
-        Column(Modifier.padding(start = 48.dp, bottom = 40.dp)) {
-            Label(work.title, color = Palette.Text, size = 15.sp)
+        Column(Modifier.padding(start = 48.dp, bottom = 32.dp)) {
+            Label(work.title, color = Palette.Text, size = 12.sp)
             Spacer(Modifier.height(4.dp))
             Label(
                 "${work.artist} · ${work.year} · NATIONAL GALLERY OF ART".uppercase(),
-                color = Palette.Text.copy(alpha = 0.62f), size = 9.sp, letterSpacing = 1.5.sp,
+                color = Palette.Text.copy(alpha = 0.62f), size = 7.sp, letterSpacing = 1.5.sp,
             )
-            Spacer(Modifier.height(10.dp))
-            Label("Pulsa cualquier botón para volver", color = Palette.Accent.copy(alpha = 0.8f), size = 10.sp)
         }
     }
 }
