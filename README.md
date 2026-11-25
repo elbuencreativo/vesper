@@ -105,3 +105,7 @@ Acorta los tiempos del reposo (solo en builds de depuración).
 - **Obra más visible**: capa de la paleta más ligera (0.34 / 0.46 / 0.86 de opacidad arriba/medio/abajo).
 - **Quitar de Seguir viendo**: mantener OK sobre una tarjeta abre el menú; el descarte se recuerda hasta que vuelvas a ver ese título.
 - Los menús modales bloquean el foco del fondo (`LocalFocusEnabled`) y al cerrarse devuelven el foco al elemento anterior (`FocusMemory`).
+
+## Firma del release
+
+El APK se firma con una clave propia que vive **fuera del repo**: `~/.vesper-signing/` (`vesper-release.jks` + `keystore.properties`). Respáldala (si la pierdes, habrá que desinstalar y reinstalar en las TVs). Sin ese archivo, Gradle firma con la clave de depuración.
