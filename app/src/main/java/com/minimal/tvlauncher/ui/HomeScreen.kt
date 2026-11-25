@@ -17,9 +17,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.unit.dp
 import com.minimal.tvlauncher.data.AppEntry
@@ -48,6 +51,8 @@ fun HomeScreen(
     val appFocus = remember { FocusRequester() }
     val memory = remember { FocusMemory() }
     memory.frozen = focusBlocked
+    // Con el foco en la barra de apps, las tarjetas de "Seguir viendo" se reducen.
+    var inApps by remember { androidx.compose.runtime.mutableStateOf(false) }
 
     // Al cerrar un menú modal, el foco vuelve al elemento que lo tenía.
     LaunchedEffect(refocusKey) {
@@ -73,16 +78,21 @@ fun HomeScreen(
             // "Seguir viendo" va pegado a la fila de apps, abajo, no arriba.
             Spacer(Modifier.weight(1f))
             if (cards.isNotEmpty()) {
-                ContinueRow(cards, cardFocus, onCard, onCardMenu, memory)
+                ContinueRow(cards, cardFocus, onCard, onCardMenu, memory, shrink = inApps)
             }
-            AppRow(apps.row, appFocus, onLaunch, onClose, onOpenAll, onManage, memory, Modifier.padding(bottom = 14.dp))
+            AppRow(
+                apps.row, appFocus, onLaunch, onClose, onOpenAll, onManage, memory,
+                Modifier.padding(bottom = 14.dp).onFocusChanged { if (!focusBlocked) inApps = it.hasFocus },
+            )
         }
         }
+        // Reloj abajo a la derecha, centrado con la barra de apps.
+        Clock(Modifier.align(Alignment.BottomEnd).padding(end = 48.dp, bottom = 58.dp))
         AnimatedVisibility(
             visible = message != null,
             enter = fadeIn(tween(180)),
             exit = fadeOut(tween(260)),
-            modifier = Modifier.align(Alignment.BottomEnd).padding(end = 48.dp, bottom = 40.dp),
+            modifier = Modifier.align(Alignment.TopEnd).padding(end = 48.dp, top = 34.dp),
         ) {
             Box(
                 Modifier.clip(RoundedCornerShape(20.dp)).background(Palette.SurfaceHigh)

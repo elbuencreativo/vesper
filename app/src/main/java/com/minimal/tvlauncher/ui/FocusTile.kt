@@ -42,13 +42,14 @@ fun FocusTile(
     modifier: Modifier = Modifier,
     onFocusChange: (Boolean) -> Unit = {},
     onLongClick: (() -> Unit)? = null,
+    focusScale: Float = 1.08f,
     onClick: () -> Unit,
     content: @Composable BoxScope.(focused: Boolean) -> Unit,
 ) {
     var focused by remember { mutableStateOf(false) }
     val press = remember { OkPressTracker() }
     val focusEnabled = LocalFocusEnabled.current
-    val scale by animateFloatAsState(if (focused) 1.08f else 1f, tween(140), label = "tileScale")
+    val scale by animateFloatAsState(if (focused) focusScale else 1f, tween(180), label = "tileScale")
 
     Box(
         modifier

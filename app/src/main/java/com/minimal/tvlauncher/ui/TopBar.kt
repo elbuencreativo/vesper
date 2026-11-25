@@ -55,7 +55,6 @@ fun TopBar(onAction: (QuickAction) -> Unit, modifier: Modifier = Modifier, atten
                 }
             }
         }
-        Clock()
     }
 }
 

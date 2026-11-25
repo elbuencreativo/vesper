@@ -55,7 +55,10 @@ fun ContinueRow(
     onMenu: (ContinueCard) -> Unit,
     memory: FocusMemory,
     modifier: Modifier = Modifier,
+    shrink: Boolean = false,
 ) {
+    // Tamaño base 5 % menor; con el foco en la barra de apps, todas se reducen un 20 % más.
+    val size by androidx.compose.animation.core.animateFloatAsState(if (shrink) 0.8f else 1f, androidx.compose.animation.core.tween(220), label = "cardsSize")
     Column(modifier) {
         Label(
             "SEGUIR VIENDO", Modifier.padding(start = 48.dp), Palette.Accent.copy(alpha = 0.85f), 9.sp,
@@ -78,6 +81,7 @@ fun ContinueRow(
                     onClick = { onClick(card) },
                     onLongClick = { onMenu(card) },
                     onFocused = { memory.remember(memoryKey) },
+                    widthDp = 184f * 0.95f * size,
                     modifier = Modifier.focusRequester(requester),
                 )
             }
@@ -91,6 +95,7 @@ private fun ContinueCardView(
     onClick: () -> Unit,
     onLongClick: () -> Unit,
     onFocused: () -> Unit,
+    widthDp: Float,
     modifier: Modifier,
 ) {
     val shape = RoundedCornerShape(8.dp)
@@ -101,8 +106,8 @@ private fun ContinueCardView(
     val poster by produceState<ImageBitmap?>(null, card.posterUri) { value = card.posterUri?.let { posters.load(it) } }
 
     FocusTile(
-        shape, modifier.width(184.dp).aspectRatio(16f / 9f),
-        onFocusChange = { if (it) onFocused() }, onLongClick = onLongClick, onClick = onClick,
+        shape, modifier.width(widthDp.dp).aspectRatio(16f / 9f),
+        onFocusChange = { if (it) onFocused() }, onLongClick = onLongClick, focusScale = 1.15f, onClick = onClick,
     ) { focused ->
         Box(Modifier.fillMaxHeight().fillMaxWidth().background(Brush.linearGradient(listOf(top, bottom)))) {
             poster?.let {
