@@ -61,18 +61,32 @@ fun ContinueRow(
     modifier: Modifier = Modifier,
     shrink: Boolean = false,
     showLogos: Boolean = false,
+    showPosters: Boolean = true,
 ) {
     // Tamaño base 5 % menor; con el foco en la barra de apps, todas se reducen un 20 % más.
     val size by androidx.compose.animation.core.animateFloatAsState(if (shrink) 0.8f else 1f, androidx.compose.animation.core.tween(220), label = "cardsSize")
     Column(modifier) {
+        var focusedCard by remember { androidx.compose.runtime.mutableStateOf<ContinueCard?>(null) }
+        var rowFocused by remember { androidx.compose.runtime.mutableStateOf(false) }
+        // Logo del programa enfocado (TMDB), a la izquierda, entre los botones de ajustes y la fila.
+        if (showLogos) {
+            val logos = com.minimal.tvlauncher.data.LocalLogoRepository.current
+            val name = focusedCard?.title
+            val logo by produceState<ImageBitmap?>(null, name, rowFocused) {
+                value = if (rowFocused && name != null) logos?.get(name) else null
+            }
+            Box(Modifier.padding(start = 48.dp, bottom = 10.dp).height(40.dp).fillMaxWidth(0.2f), contentAlignment = Alignment.CenterStart) {
+                logo?.let {
+                    Image(it, name, Modifier.fillMaxSize(), contentScale = ContentScale.Fit, alignment = Alignment.CenterStart)
+                }
+            }
+        }
         Label(
             "SEGUIR VIENDO", Modifier.padding(start = 48.dp), Palette.Accent.copy(alpha = 0.85f), 9.sp,
             letterSpacing = 2.sp,
         )
         // Espacio fijo bajo el título de la fila: con una tarjeta enfocada, barra de progreso y episodio / tiempo restante.
-        var focusedCard by remember { androidx.compose.runtime.mutableStateOf<ContinueCard?>(null) }
-        var rowFocused by remember { androidx.compose.runtime.mutableStateOf(false) }
-        Column(Modifier.padding(start = 48.dp, top = 10.dp).height(38.dp)) {
+        Column(Modifier.padding(start = 48.dp, top = 10.dp).height(34.dp)) {
             val c = focusedCard
             if (rowFocused && c?.detail != null) {
                 c.progress?.let { p ->
@@ -89,7 +103,7 @@ fun ContinueRow(
         }
         LazyRow(
             modifier = Modifier.onFocusChanged { rowFocused = it.hasFocus },
-            contentPadding = PaddingValues(horizontal = 48.dp, vertical = 18.dp),
+            contentPadding = PaddingValues(start = 48.dp, end = 48.dp, top = 10.dp, bottom = 18.dp),
             horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(14.dp),
         ) {
             itemsIndexed(cards, key = { i, c -> "$i:${c.packageName}:${c.title}" }) { i, card ->
@@ -104,7 +118,7 @@ fun ContinueRow(
                     onClick = { onClick(card) },
                     onLongClick = { onMenu(card) },
                     onFocused = { memory.remember(memoryKey); focusedCard = card },
-                    showLogos = showLogos,
+                    showPosters = showPosters,
                     widthDp = 184f * 0.95f * size,
                     modifier = Modifier.focusRequester(requester),
                 )
@@ -120,7 +134,7 @@ private fun ContinueCardView(
     onLongClick: () -> Unit,
     onFocused: () -> Unit,
     widthDp: Float,
-    showLogos: Boolean,
+    showPosters: Boolean,
     modifier: Modifier,
 ) {
     val shape = RoundedCornerShape(8.dp)
@@ -128,10 +142,9 @@ private fun ContinueCardView(
     val icons = LocalIconCache.current
     val icon by produceState<ImageBitmap?>(null, card.packageName) { value = icons.get(card.packageName) }
     val posters = LocalPosterLoader.current
-    val poster by produceState<ImageBitmap?>(null, card.posterUri) { value = card.posterUri?.let { posters.load(it) } }
-
-    val logos = com.minimal.tvlauncher.data.LocalLogoRepository.current
-    val logo by produceState<ImageBitmap?>(null, card.title, showLogos) { value = if (showLogos) logos?.get(card.title) else null }
+    val poster by produceState<ImageBitmap?>(null, card.posterUri, showPosters) {
+        value = if (showPosters) card.posterUri?.let { posters.load(it) } else null
+    }
 
     FocusTile(
         shape, modifier.width(widthDp.dp).aspectRatio(16f / 9f),
@@ -154,16 +167,7 @@ private fun ContinueCardView(
                     .background(Brush.verticalGradient(listOf(Color.Transparent, Palette.Navy.copy(alpha = 0.85f))))
                     .padding(start = 10.dp, end = 10.dp, top = 14.dp, bottom = 8.dp),
             ) {
-                // Con el foco y logo disponible, el logo del programa sustituye al título.
-                val l = logo
-                if (focused && l != null) {
-                    Image(
-                        l, card.title, Modifier.height(30.dp).fillMaxWidth(0.7f),
-                        contentScale = ContentScale.Fit, alignment = Alignment.CenterStart,
-                    )
-                } else {
-                    Label(card.title, color = Palette.Text, size = 11.sp)
-                }
+                Label(card.title, color = Palette.Text, size = 11.sp)
             }
         }
     }

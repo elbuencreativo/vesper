@@ -229,6 +229,7 @@ class HomeActivity : ComponentActivity() {
                                 secondaryCity = Cities.byName(vm.display.secondaryCity),
                                 appBarStyle = vm.display.appBarStyle,
                                 showLogos = vm.display.showLogos,
+                                showPosters = vm.display.showPosters,
                             )
                         }
                     }

@@ -47,6 +47,7 @@ fun HomeScreen(
     secondaryCity: com.minimal.tvlauncher.data.City? = null,
     appBarStyle: com.minimal.tvlauncher.data.AppBarStyle = com.minimal.tvlauncher.data.AppBarStyle.Icons,
     showLogos: Boolean = false,
+    showPosters: Boolean = true,
 ) {
     // Conserva el último texto para que el aviso no quede vacío mientras se desvanece.
     val lastMessage = remember { androidx.compose.runtime.mutableStateOf("") }
@@ -82,7 +83,7 @@ fun HomeScreen(
             // "Seguir viendo" va pegado a la fila de apps, abajo, no arriba.
             Spacer(Modifier.weight(1f))
             if (cards.isNotEmpty()) {
-                ContinueRow(cards, cardFocus, onCard, onCardMenu, memory, shrink = inApps, showLogos = showLogos)
+                ContinueRow(cards, cardFocus, onCard, onCardMenu, memory, shrink = inApps, showLogos = showLogos, showPosters = showPosters)
             }
             AppRow(
                 apps.row, appFocus, onLaunch, onClose, onOpenAll, onManage, memory, appBarStyle,

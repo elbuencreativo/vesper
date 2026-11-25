@@ -113,6 +113,12 @@ fun LauncherSettingsScreen(
             }
             item { SectionLabel("SEGUIR VIENDO") }
             item {
+                MenuItem(
+                    "Pósters en las tarjetas: " + if (display.showPosters) "sí" else "no",
+                    { onDisplay { it.copy(showPosters = !it.showPosters) } },
+                )
+            }
+            item {
                 val has = com.minimal.tvlauncher.data.LocalLogoRepository.current?.available == true
                 MenuItem(
                     "Logo del programa: " + if (!has) "no disponible (falta la clave de TMDB)" else if (display.showLogos) "sí" else "no",

@@ -63,6 +63,8 @@ data class DisplaySettings(
     val appBarStyle: AppBarStyle = AppBarStyle.Icons,
     /** Logo del programa (TMDB) sobre la tarjeta enfocada de "Seguir viendo". */
     val showLogos: Boolean = false,
+    /** Póster del contenido en cada tarjeta de "Seguir viendo"; apagado, solo icono del app y título. */
+    val showPosters: Boolean = true,
 )
 
 object ThemeLogic {
