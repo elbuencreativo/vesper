@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -37,6 +38,8 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.minimal.tvlauncher.data.AppEntry
@@ -62,55 +65,78 @@ fun AppRow(
     Column(modifier) {
         Label("APPS", Modifier.padding(start = 48.dp), Palette.Accent.copy(alpha = 0.85f), 9.sp, letterSpacing = 2.sp)
         Spacer(Modifier.height(0.dp))
-        LazyRow(
-            // En texto la fila termina antes del reloj (abajo a la derecha) y se desplaza si no cabe.
-            modifier = if (textStyle) Modifier.padding(end = 200.dp) else Modifier,
-            contentPadding = PaddingValues(horizontal = 48.dp, vertical = 18.dp),
-            horizontalArrangement = Arrangement.spacedBy(if (textStyle) 10.dp else 14.dp),
-        ) {
-            items(apps, key = { it.packageName }) { app ->
-                val memoryKey = "a:${app.packageName}"
-                val requester = remember(memoryKey) { if (app == apps.first()) firstFocus else FocusRequester() }
-                DisposableEffect(memoryKey) {
-                    memory.requesters[memoryKey] = requester
-                    onDispose { memory.requesters.remove(memoryKey) }
-                }
-                if (textStyle) TextAppTile(
-                    app,
-                    onFocus = { focusedLabel = ""; memory.remember(memoryKey) }, // el nombre ya está en el texto
-                    onLaunch = { onLaunch(app) },
-                    onClose = { onClose(app) },
-                    modifier = Modifier.focusRequester(requester),
-                ) else AppTile(
-                    app,
-                    onFocus = { focusedLabel = app.label; memory.remember(memoryKey) },
-                    onLaunch = { onLaunch(app) },
-                    onClose = { onClose(app) },
-                    modifier = Modifier.focusRequester(requester),
-                )
+        val appTile: @Composable (AppEntry, Dp) -> Unit = { app, tileWidth ->
+            val memoryKey = "a:${app.packageName}"
+            val requester = remember(memoryKey) { if (app == apps.first()) firstFocus else FocusRequester() }
+            DisposableEffect(memoryKey) {
+                memory.requesters[memoryKey] = requester
+                onDispose { memory.requesters.remove(memoryKey) }
             }
-            item(key = "all-apps") {
-                val plusRequester = remember { FocusRequester() }
-                DisposableEffect(Unit) {
-                    memory.requesters["plus"] = plusRequester
-                    onDispose { memory.requesters.remove("plus") }
+            if (textStyle) TextAppTile(
+                app, tileWidth,
+                onFocus = { focusedLabel = ""; memory.remember(memoryKey) }, // el nombre ya está en el texto
+                onLaunch = { onLaunch(app) },
+                onClose = { onClose(app) },
+                modifier = Modifier.focusRequester(requester),
+            ) else AppTile(
+                app,
+                onFocus = { focusedLabel = app.label; memory.remember(memoryKey) },
+                onLaunch = { onLaunch(app) },
+                onClose = { onClose(app) },
+                modifier = Modifier.focusRequester(requester),
+            )
+        }
+        val plusButton: @Composable () -> Unit = {
+            val plusRequester = remember { FocusRequester() }
+            DisposableEffect(Unit) {
+                memory.requesters["plus"] = plusRequester
+                onDispose { memory.requesters.remove("plus") }
+            }
+            FocusTile(
+                CircleShape, Modifier.size(48.dp).focusRequester(plusRequester),
+                onFocusChange = { if (it) { focusedLabel = "Todas las apps"; memory.remember("plus") } },
+                onLongClick = onManage,
+                onClick = onOpenAll,
+            ) { focused ->
+                Canvas(
+                    Modifier.fillMaxSize().background(Palette.Surface.copy(alpha = 0.86f), CircleShape)
+                        .border(1.dp, Palette.Line, CircleShape).padding(16.dp),
+                ) {
+                    val c = if (focused) Palette.Accent else Palette.TextMuted
+                    val w = size.width
+                    drawLine(c, Offset(0f, w / 2), Offset(w, w / 2), 2.5f, StrokeCap.Round)
+                    drawLine(c, Offset(w / 2, 0f), Offset(w / 2, w), 2.5f, StrokeCap.Round)
                 }
-                FocusTile(
-                    CircleShape, Modifier.size(48.dp).focusRequester(plusRequester),
-                    onFocusChange = { if (it) { focusedLabel = "Todas las apps"; memory.remember("plus") } },
-                    onLongClick = onManage,
-                    onClick = onOpenAll,
-                ) { focused ->
-                    Canvas(
-                        Modifier.fillMaxSize().background(Palette.Surface.copy(alpha = 0.86f), CircleShape)
-                            .border(1.dp, Palette.Line, CircleShape).padding(16.dp),
-                    ) {
-                        val c = if (focused) Palette.Accent else Palette.TextMuted
-                        val w = size.width
-                        drawLine(c, Offset(0f, w / 2), Offset(w, w / 2), 2.5f, StrokeCap.Round)
-                        drawLine(c, Offset(w / 2, 0f), Offset(w / 2, w), 2.5f, StrokeCap.Round)
+            }
+        }
+        if (textStyle) {
+            // Dos hileras: todos los nombres a la vista, sin desplazamiento. El "+" queda centrado entre ambas.
+            BoxWithConstraints(Modifier.fillMaxWidth()) {
+                val cols = ((apps.size + 1) / 2).coerceAtLeast(1)
+                val avail = maxWidth - 48.dp - 24.dp - 48.dp - 190.dp // margen, hueco, botón, reloj
+                val tileWidth = ((avail - TEXT_GAP * (cols - 1)) / cols).coerceIn(88.dp, TEXT_TILE_WIDTH)
+                androidx.compose.foundation.layout.Row(
+                    Modifier.padding(start = 48.dp, top = 10.dp, bottom = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                        listOf(apps.take(cols), apps.drop(cols)).forEach { line ->
+                            androidx.compose.foundation.layout.Row(horizontalArrangement = Arrangement.spacedBy(TEXT_GAP)) {
+                                line.forEach { app -> androidx.compose.runtime.key(app.packageName) { appTile(app, tileWidth) } }
+                            }
+                        }
                     }
+                    Spacer(Modifier.size(24.dp))
+                    plusButton()
                 }
+            }
+        } else {
+            LazyRow(
+                contentPadding = PaddingValues(horizontal = 48.dp, vertical = 18.dp),
+                horizontalArrangement = Arrangement.spacedBy(14.dp),
+            ) {
+                items(apps, key = { it.packageName }) { app -> appTile(app, TEXT_TILE_WIDTH) }
+                item(key = "all-apps") { plusButton() }
             }
         }
         Label(
@@ -145,6 +171,7 @@ private fun AppTile(
 @Composable
 private fun TextAppTile(
     app: AppEntry,
+    tileWidth: Dp,
     onFocus: () -> Unit,
     onLaunch: () -> Unit,
     onClose: () -> Unit,
@@ -162,15 +189,15 @@ private fun TextAppTile(
     ) { focused ->
         // Casilla de ancho fijo: todos los nombres ocupan lo mismo (hasta 2 líneas) y forman una rejilla.
         Column(
-            Modifier.width(TEXT_TILE_WIDTH).fillMaxHeight().padding(start = 6.dp, end = 6.dp, bottom = 7.dp),
+            Modifier.width(tileWidth).fillMaxHeight().padding(start = 6.dp, end = 6.dp, bottom = 7.dp),
             verticalArrangement = Arrangement.Bottom, // el subrayado fija la base; el texto crece hacia arriba
         ) {
             androidx.compose.foundation.layout.Row(verticalAlignment = Alignment.Top) {
-                Box(Modifier.padding(top = 6.dp).size(7.dp).background(brand, CircleShape))
+                Box(Modifier.padding(top = 6.dp).size(7.dp).background(if (focused) brand else TEXT_SEPIA, CircleShape))
                 Spacer(Modifier.size(8.dp))
                 Label(
                     app.label,
-                    color = if (focused) Palette.Text else Palette.Text.copy(alpha = 0.6f),
+                    color = if (focused) Palette.Text else TEXT_SEPIA_TEXT,
                     size = 14.sp,
                     weight = if (focused) androidx.compose.ui.text.font.FontWeight.Medium else androidx.compose.ui.text.font.FontWeight.Normal,
                     maxLines = 2,
@@ -183,3 +210,7 @@ private fun TextAppTile(
 }
 
 private val TEXT_TILE_WIDTH = 124.dp
+private val TEXT_GAP = 6.dp
+/** Sepia oscuro del punto y del texto de las apps sin foco. */
+private val TEXT_SEPIA = Color(0xFF7D6650)
+private val TEXT_SEPIA_TEXT = Color(0xFFA08A74)
