@@ -66,7 +66,7 @@ fun AppRow(
             // En texto la fila termina antes del reloj (abajo a la derecha) y se desplaza si no cabe.
             modifier = if (textStyle) Modifier.padding(end = 200.dp) else Modifier,
             contentPadding = PaddingValues(horizontal = 48.dp, vertical = 18.dp),
-            horizontalArrangement = Arrangement.spacedBy(if (textStyle) 26.dp else 14.dp),
+            horizontalArrangement = Arrangement.spacedBy(if (textStyle) 10.dp else 14.dp),
         ) {
             items(apps, key = { it.packageName }) { app ->
                 val memoryKey = "a:${app.packageName}"
@@ -160,22 +160,26 @@ private fun TextAppTile(
         onClick = onLaunch,
         plain = true,
     ) { focused ->
+        // Casilla de ancho fijo: todos los nombres ocupan lo mismo (hasta 2 líneas) y forman una rejilla.
         Column(
-            Modifier.width(androidx.compose.foundation.layout.IntrinsicSize.Max).fillMaxHeight().padding(horizontal = 6.dp),
+            Modifier.width(TEXT_TILE_WIDTH).fillMaxHeight().padding(horizontal = 6.dp),
             verticalArrangement = Arrangement.Center,
         ) {
-            androidx.compose.foundation.layout.Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.size(7.dp).background(brand, CircleShape))
+            androidx.compose.foundation.layout.Row(Modifier.height(36.dp), verticalAlignment = Alignment.Top) {
+                Box(Modifier.padding(top = 6.dp).size(7.dp).background(brand, CircleShape))
                 Spacer(Modifier.size(8.dp))
                 Label(
                     app.label,
                     color = if (focused) Palette.Text else Palette.Text.copy(alpha = 0.6f),
-                    size = 17.sp,
+                    size = 14.sp,
                     weight = if (focused) androidx.compose.ui.text.font.FontWeight.Medium else androidx.compose.ui.text.font.FontWeight.Normal,
+                    maxLines = 2,
                 )
             }
-            Spacer(Modifier.height(5.dp))
+            Spacer(Modifier.height(4.dp))
             Box(Modifier.height(2.dp).fillMaxWidth().background(if (focused) brand else androidx.compose.ui.graphics.Color.Transparent))
         }
     }
 }
+
+private val TEXT_TILE_WIDTH = 124.dp
