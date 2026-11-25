@@ -26,6 +26,13 @@ class WatchNextMappingTest {
     }
 
     @Test
+    fun mapRow_keepsTheLastEngagementTime() {
+        val item = mapRow("p", "t", null, 0, 0, null, lastEngagementMs = 12_345)
+        assertEquals(12_345L, item!!.lastEngagementMs)
+        assertEquals(0L, mapRow("p", "t", null, 0, 0, null)!!.lastEngagementMs)
+    }
+
+    @Test
     fun mapRow_progressIsNull_whenDurationUnknown_andClampedToOne() {
         assertNull(mapRow("p", "t", null, 5_000, 0, null)!!.progress)
         assertEquals(1f, mapRow("p", "t", null, 9_000, 3_000, null)!!.progress!!, 0.0001f)

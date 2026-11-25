@@ -31,11 +31,14 @@ fun HomeScreen(
     cards: List<ContinueCard>,
     onAction: (QuickAction) -> Unit,
     onCard: (ContinueCard) -> Unit,
+    onCardMenu: (ContinueCard) -> Unit,
     onLaunch: (AppEntry) -> Unit,
     onClose: (AppEntry) -> Unit,
     onOpenAll: () -> Unit,
     onManage: () -> Unit,
-    homeKeyActive: Boolean,
+    attention: Boolean,
+    refocusKey: Int = 0,
+    focusBlocked: Boolean = false,
     message: String? = null,
 ) {
     // Conserva el último texto para que el aviso no quede vacío mientras se desvanece.
@@ -43,6 +46,17 @@ fun HomeScreen(
     if (message != null) lastMessage.value = message
     val cardFocus = remember { FocusRequester() }
     val appFocus = remember { FocusRequester() }
+    val memory = remember { FocusMemory() }
+    memory.frozen = focusBlocked
+
+    // Al cerrar un menú modal, el foco vuelve al elemento que lo tenía.
+    LaunchedEffect(refocusKey) {
+        if (refocusKey == 0) return@LaunchedEffect
+        repeat(8) {
+            if (memory.restore(if (cards.isNotEmpty()) cardFocus else appFocus)) return@LaunchedEffect
+            kotlinx.coroutines.delay(60)
+        }
+    }
 
     // El foco inicial va a la primera tarjeta; si no hay, al primer app.
     LaunchedEffect(cards.isEmpty(), apps.row.isEmpty()) {
@@ -52,14 +66,17 @@ fun HomeScreen(
     }
 
     Box(Modifier.fillMaxSize()) {
+        // Con un menú abierto, lo que hay detrás no puede tomar el foco (si no, las flechas se escapan al fondo).
+        androidx.compose.runtime.CompositionLocalProvider(LocalFocusEnabled provides !focusBlocked) {
         Column(Modifier.fillMaxSize()) {
-            TopBar(onAction, Modifier.padding(start = 48.dp, end = 48.dp, top = 32.dp), attention = !homeKeyActive)
+            TopBar(onAction, Modifier.padding(start = 48.dp, end = 48.dp, top = 32.dp), attention = attention)
             // "Seguir viendo" va pegado a la fila de apps, abajo, no arriba.
             Spacer(Modifier.weight(1f))
             if (cards.isNotEmpty()) {
-                ContinueRow(cards, cardFocus, onCard)
+                ContinueRow(cards, cardFocus, onCard, onCardMenu, memory)
             }
-            AppRow(apps.row, appFocus, onLaunch, onClose, onOpenAll, onManage, Modifier.padding(bottom = 14.dp))
+            AppRow(apps.row, appFocus, onLaunch, onClose, onOpenAll, onManage, memory, Modifier.padding(bottom = 14.dp))
+        }
         }
         AnimatedVisibility(
             visible = message != null,

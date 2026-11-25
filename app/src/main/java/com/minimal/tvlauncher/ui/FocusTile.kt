@@ -23,6 +23,9 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.unit.dp
 
+/** Si es false, ningún FocusTile bajo este proveedor puede tomar el foco (p. ej. mientras hay un menú modal abierto). */
+val LocalFocusEnabled = androidx.compose.runtime.compositionLocalOf { true }
+
 private val CONFIRM_KEYS = setOf(
     AndroidKeyEvent.KEYCODE_DPAD_CENTER,
     AndroidKeyEvent.KEYCODE_ENTER,
@@ -44,6 +47,7 @@ fun FocusTile(
 ) {
     var focused by remember { mutableStateOf(false) }
     val press = remember { OkPressTracker() }
+    val focusEnabled = LocalFocusEnabled.current
     val scale by animateFloatAsState(if (focused) 1.08f else 1f, tween(140), label = "tileScale")
 
     Box(
@@ -75,6 +79,6 @@ fun FocusTile(
                 focused = it.isFocused
                 onFocusChange(it.isFocused)
             }
-            .focusable(),
+            .focusable(enabled = focusEnabled),
     ) { content(focused) }
 }

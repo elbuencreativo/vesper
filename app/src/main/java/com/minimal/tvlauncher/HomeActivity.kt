@@ -12,9 +12,14 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -75,6 +80,9 @@ class HomeActivity : ComponentActivity() {
     private var reorderFavorites by mutableStateOf(false)
     private var homeMenu by mutableStateOf(false)
     private var homeKeyActive by mutableStateOf(true)
+    private var artMode by mutableStateOf(false)
+    private var cardMenu by mutableStateOf<ContinueCard?>(null)
+    private var menuTick by mutableIntStateOf(0)
     private var message by mutableStateOf<String?>(null)
     private var messageJob: Job? = null
 
@@ -106,8 +114,26 @@ class HomeActivity : ComponentActivity() {
         setContent {
             CompositionLocalProvider(LocalIconCache provides remember { icons }, LocalPosterLoader provides remember { posters }) {
                 val idleState by idle.state.collectAsState()
+                // Aviso de versión nueva (una vez por versión) y, al abrir los ajustes con una versión nueva conocida,
+                // se carga su información para poder ofrecer "Instalar".
+                LaunchedEffect(vm.updateNotice) {
+                    vm.updateNotice?.let {
+                        flash(it, 7000)
+                        vm.consumeUpdateNotice()
+                    }
+                }
+                LaunchedEffect(screen, vm.updateBadge) {
+                    if (screen == Screen.Settings && vm.updateBadge && vm.availableUpdate == null && !vm.updateBusy) vm.checkForUpdate()
+                }
                 Box(Modifier.fillMaxSize()) {
-                    AppBackground(art)
+                    AppBackground(art, clear = artMode)
+                    // Modo "ver obra": toda la interfaz se desvanece y queda la obra; cualquier botón la devuelve.
+                    AnimatedVisibility(
+                        visible = !artMode,
+                        enter = fadeIn(tween(500)),
+                        exit = fadeOut(tween(500)),
+                        modifier = Modifier.fillMaxSize(),
+                    ) {
                     key(homeTick) {
                         when (screen) {
                             Screen.All -> AllAppsScreen(
@@ -139,14 +165,18 @@ class HomeActivity : ComponentActivity() {
                                 cards = vm.cards,
                                 onAction = ::quickAction,
                                 onCard = ::openCard,
+                                onCardMenu = { cardMenu = it },
                                 onLaunch = ::launch,
                                 onClose = ::close,
                                 onOpenAll = { reorderFavorites = false; screen = Screen.All },
                                 onManage = { homeMenu = true },
-                                homeKeyActive = homeKeyActive,
+                                attention = !homeKeyActive || vm.updateBadge,
+                                refocusKey = menuTick,
+                                focusBlocked = homeMenu || cardMenu != null,
                                 message = message,
                             )
                         }
+                    }
                     }
                     if (homeMenu) {
                         OptionsMenu(
@@ -154,9 +184,19 @@ class HomeActivity : ComponentActivity() {
                             options = listOf(
                                 "Ordenar favoritos" to { homeMenu = false; reorderFavorites = true; screen = Screen.All },
                                 "Administrar apps" to { homeMenu = false; reorderFavorites = false; screen = Screen.All },
-                                "Cancelar" to { homeMenu = false },
+                                "Cancelar" to { homeMenu = false; menuTick++ },
                             ),
-                            onDismiss = { homeMenu = false },
+                            onDismiss = { homeMenu = false; menuTick++ },
+                        )
+                    }
+                    cardMenu?.let { card ->
+                        OptionsMenu(
+                            title = card.title,
+                            options = listOf(
+                                "Quitar de Seguir viendo" to { vm.dismissCard(card); cardMenu = null; menuTick++ },
+                                "Cancelar" to { cardMenu = null; menuTick++ },
+                            ),
+                            onDismiss = { cardMenu = null; menuTick++ },
                         )
                     }
                     IdleScreen(idleState, art)
@@ -172,6 +212,7 @@ class HomeActivity : ComponentActivity() {
             Settings.Secure.getString(contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES), packageName,
         )
         vm.refresh()
+        vm.checkForUpdateIfDue()
     }
 
     override fun onPause() {
@@ -184,6 +225,8 @@ class HomeActivity : ComponentActivity() {
         super.onNewIntent(intent)
         idle.onUserInput()
         homeMenu = false
+        cardMenu = null
+        artMode = false
         reorderFavorites = false
         screen = Screen.Home
         homeTick++
@@ -195,6 +238,11 @@ class HomeActivity : ComponentActivity() {
             KeyEvent.ACTION_DOWN -> {
                 if (idle.onUserInput() && event.repeatCount == 0) swallowedKey = event.keyCode
                 if (event.keyCode == swallowedKey) return true
+                if (artMode && event.repeatCount == 0) {
+                    artMode = false
+                    swallowedKey = event.keyCode
+                    return true
+                }
             }
             KeyEvent.ACTION_UP -> if (event.keyCode == swallowedKey) {
                 swallowedKey = -1
@@ -220,6 +268,10 @@ class HomeActivity : ComponentActivity() {
             QuickAction.AndroidSettings -> Shortcut.AndroidSettings
             QuickAction.LauncherSettings -> {
                 screen = Screen.Settings
+                return
+            }
+            QuickAction.ShowArt -> {
+                artMode = true
                 return
             }
         }
@@ -249,11 +301,11 @@ class HomeActivity : ComponentActivity() {
             .onFailure { flash("No se pudo abrir ${card.title}") }
     }
 
-    private fun flash(text: String) {
+    private fun flash(text: String, durationMs: Long = 1800) {
         messageJob?.cancel()
         message = text
         messageJob = lifecycleScope.launch {
-            delay(1800)
+            delay(durationMs)
             message = null
         }
     }

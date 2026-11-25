@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 import kotlin.math.cos
 import kotlin.math.sin
 
-enum class QuickAction { Wifi, Bluetooth, AndroidSettings, LauncherSettings }
+enum class QuickAction { Wifi, Bluetooth, AndroidSettings, LauncherSettings, ShowArt }
 
 /** Iconos de línea fina dibujados a mano: sin recursos ni librerías de iconos. */
 @Composable
@@ -29,6 +29,7 @@ fun QuickIcon(action: QuickAction, tint: Color, size: Dp = 16.dp) {
             QuickAction.Bluetooth -> drawBluetooth(tint, stroke)
             QuickAction.AndroidSettings -> drawGear(tint, stroke)
             QuickAction.LauncherSettings -> drawHalfCircle(tint, stroke)
+            QuickAction.ShowArt -> drawEye(tint, stroke)
         }
     }
 }
@@ -71,6 +72,20 @@ private fun DrawScope.drawGear(c: Color, stroke: Stroke) {
         val to = Offset(center.x + (cos(a) * size.width * 0.45f).toFloat(), center.y + (sin(a) * size.width * 0.45f).toFloat())
         drawLine(c, from, to, strokeWidth = stroke.width, cap = StrokeCap.Round)
     }
+}
+
+/** Ojo: contorno de almendra con la pupila (ver la obra sin interfaz). */
+private fun DrawScope.drawEye(c: Color, stroke: Stroke) {
+    val w = size.width
+    val h = size.height
+    val p = Path().apply {
+        moveTo(w * 0.06f, h * 0.5f)
+        quadraticBezierTo(w * 0.5f, h * 0.06f, w * 0.94f, h * 0.5f)
+        quadraticBezierTo(w * 0.5f, h * 0.94f, w * 0.06f, h * 0.5f)
+        close()
+    }
+    drawPath(p, c, style = stroke)
+    drawCircle(c, radius = w * 0.14f, center = Offset(w / 2f, h / 2f))
 }
 
 private fun DrawScope.drawHalfCircle(c: Color, stroke: Stroke) {

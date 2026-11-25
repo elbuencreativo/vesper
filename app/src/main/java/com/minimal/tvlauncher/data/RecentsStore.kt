@@ -13,6 +13,10 @@ class RecentsStore(private val prefs: Prefs) {
         prefs.setRecents(updated)
     }
 
+    suspend fun remove(packageName: String) {
+        prefs.setRecents(prefs.recents.first().filter { it != packageName })
+    }
+
     fun recent(limit: Int = 10): Flow<List<String>> = prefs.recents.map { it.take(limit) }
 
     private companion object {

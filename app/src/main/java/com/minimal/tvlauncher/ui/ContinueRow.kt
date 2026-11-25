@@ -18,6 +18,8 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
@@ -50,6 +52,8 @@ fun ContinueRow(
     cards: List<ContinueCard>,
     firstFocus: FocusRequester,
     onClick: (ContinueCard) -> Unit,
+    onMenu: (ContinueCard) -> Unit,
+    memory: FocusMemory,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier) {
@@ -63,10 +67,18 @@ fun ContinueRow(
             horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(14.dp),
         ) {
             itemsIndexed(cards, key = { i, c -> "$i:${c.packageName}:${c.title}" }) { i, card ->
+                val memoryKey = "c:${card.key}"
+                val requester = remember(memoryKey) { if (i == 0) firstFocus else FocusRequester() }
+                DisposableEffect(memoryKey) {
+                    memory.requesters[memoryKey] = requester
+                    onDispose { memory.requesters.remove(memoryKey) }
+                }
                 ContinueCardView(
                     card,
                     onClick = { onClick(card) },
-                    modifier = if (i == 0) Modifier.focusRequester(firstFocus) else Modifier,
+                    onLongClick = { onMenu(card) },
+                    onFocused = { memory.remember(memoryKey) },
+                    modifier = Modifier.focusRequester(requester),
                 )
             }
         }
@@ -74,7 +86,13 @@ fun ContinueRow(
 }
 
 @Composable
-private fun ContinueCardView(card: ContinueCard, onClick: () -> Unit, modifier: Modifier) {
+private fun ContinueCardView(
+    card: ContinueCard,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit,
+    onFocused: () -> Unit,
+    modifier: Modifier,
+) {
     val shape = RoundedCornerShape(8.dp)
     val (top, bottom) = CardGradients[Math.floorMod(card.packageName.hashCode(), CardGradients.size)]
     val icons = LocalIconCache.current
@@ -82,7 +100,10 @@ private fun ContinueCardView(card: ContinueCard, onClick: () -> Unit, modifier: 
     val posters = LocalPosterLoader.current
     val poster by produceState<ImageBitmap?>(null, card.posterUri) { value = card.posterUri?.let { posters.load(it) } }
 
-    FocusTile(shape, modifier.width(184.dp).aspectRatio(16f / 9f), onClick = onClick) { focused ->
+    FocusTile(
+        shape, modifier.width(184.dp).aspectRatio(16f / 9f),
+        onFocusChange = { if (it) onFocused() }, onLongClick = onLongClick, onClick = onClick,
+    ) { focused ->
         Box(Modifier.fillMaxHeight().fillMaxWidth().background(Brush.linearGradient(listOf(top, bottom)))) {
             poster?.let {
                 Image(it, card.title, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)

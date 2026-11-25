@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -48,6 +49,7 @@ fun AppRow(
     onClose: (AppEntry) -> Unit,
     onOpenAll: () -> Unit,
     onManage: () -> Unit,
+    memory: FocusMemory,
     modifier: Modifier = Modifier,
 ) {
     var focusedLabel by remember { mutableStateOf("") }
@@ -59,18 +61,29 @@ fun AppRow(
             horizontalArrangement = Arrangement.spacedBy(14.dp),
         ) {
             items(apps, key = { it.packageName }) { app ->
+                val memoryKey = "a:${app.packageName}"
+                val requester = remember(memoryKey) { if (app == apps.first()) firstFocus else FocusRequester() }
+                DisposableEffect(memoryKey) {
+                    memory.requesters[memoryKey] = requester
+                    onDispose { memory.requesters.remove(memoryKey) }
+                }
                 AppTile(
                     app,
-                    onFocus = { focusedLabel = app.label },
+                    onFocus = { focusedLabel = app.label; memory.remember(memoryKey) },
                     onLaunch = { onLaunch(app) },
                     onClose = { onClose(app) },
-                    modifier = if (app == apps.first()) Modifier.focusRequester(firstFocus) else Modifier,
+                    modifier = Modifier.focusRequester(requester),
                 )
             }
             item(key = "all-apps") {
+                val plusRequester = remember { FocusRequester() }
+                DisposableEffect(Unit) {
+                    memory.requesters["plus"] = plusRequester
+                    onDispose { memory.requesters.remove("plus") }
+                }
                 FocusTile(
-                    RoundedCornerShape(12.dp), Modifier.size(48.dp),
-                    onFocusChange = { if (it) focusedLabel = "Todas las apps" },
+                    RoundedCornerShape(12.dp), Modifier.size(48.dp).focusRequester(plusRequester),
+                    onFocusChange = { if (it) { focusedLabel = "Todas las apps"; memory.remember("plus") } },
                     onLongClick = onManage,
                     onClick = onOpenAll,
                 ) { focused ->

@@ -17,6 +17,18 @@ class RecentsStoreTest {
         RecentsStore(Prefs(PreferenceDataStoreFactory.create { File(tmp.root, "r.preferences_pb") }))
 
     @Test
+    fun remove_dropsOnlyThatPackage_andIgnoresUnknownOnes() = runTest {
+        val s = store()
+        s.record("a")
+        s.record("b")
+        s.record("c")
+        s.remove("b")
+        assertEquals(listOf("c", "a"), s.recent().first())
+        s.remove("nunca-estuvo")
+        assertEquals(listOf("c", "a"), s.recent().first())
+    }
+
+    @Test
     fun record_movesToFront_noDuplicates_capsAtLimit() = runTest {
         val s = store()
         s.record("a")

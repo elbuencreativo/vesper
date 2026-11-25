@@ -10,6 +10,8 @@ data class WatchNextItem(
     val posterUri: String?,
     val progress: Float?,
     val intentUri: String?,
+    /** Última vez que el usuario interactuó con este contenido (ms UTC); sirve para volver a mostrarlo tras descartarlo. */
+    val lastEngagementMs: Long = 0,
 )
 
 fun mapRow(
@@ -19,9 +21,10 @@ fun mapRow(
     positionMs: Long,
     durationMs: Long,
     intentUri: String?,
+    lastEngagementMs: Long = 0,
 ): WatchNextItem? {
     val cleanTitle = title?.trim().orEmpty()
     if (cleanTitle.isEmpty()) return null
     val progress = if (durationMs > 0) (positionMs.toFloat() / durationMs).coerceIn(0f, 1f) else null
-    return WatchNextItem(packageName, cleanTitle, posterUri, progress, intentUri)
+    return WatchNextItem(packageName, cleanTitle, posterUri, progress, intentUri, lastEngagementMs)
 }

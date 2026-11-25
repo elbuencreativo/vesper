@@ -37,6 +37,17 @@ fun parseUpdateManifest(text: String): UpdateInfo? = try {
     null
 }
 
+/** Cada cuánto se busca una actualización por sí sola. */
+const val UPDATE_INTERVAL_MS = 12 * 60 * 60 * 1000L
+
+/** Toca revisar si nunca se revisó, si pasó el intervalo, o si el reloj retrocedió (marca "del futuro"). */
+fun shouldCheckForUpdate(lastCheckMs: Long, nowMs: Long, intervalMs: Long = UPDATE_INTERVAL_MS): Boolean =
+    lastCheckMs <= 0 || lastCheckMs > nowMs || nowMs - lastCheckMs >= intervalMs
+
+/** Se avisa solo de versiones más nuevas que la instalada y que aún no se anunciaron. */
+fun shouldAnnounce(availableCode: Int, currentCode: Int, announcedCode: Int): Boolean =
+    availableCode > currentCode && availableCode > announcedCode
+
 /** Solo se ofrece una versión estrictamente más nueva. */
 fun decideUpdate(currentCode: Int, remote: UpdateInfo?): UpdateStatus = when {
     remote == null -> UpdateStatus.Failed

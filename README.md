@@ -97,3 +97,11 @@ adb shell am start -n com.minimal.tvlauncher/.HomeActivity --el idle_ms 12000 --
 ```
 
 Acorta los tiempos del reposo (solo en builds de depuración).
+
+## 0.3.0
+
+- **Actualizaciones**: el launcher consulta `update.json` cada 12 h al volver al inicio (reintenta a los 30 min si falla), avisa una vez por versión y muestra un punto ámbar sobre ◐. "Buscar actualización" en Ajustes sigue disponible. Requiere que `tools/publish_update.sh` esté sirviendo desde el Mac y permitir "instalar apps desconocidas" la primera vez.
+- **Ver obra** (ojo, 5.º icono): oculta la interfaz y muestra la obra con su ficha; cualquier tecla vuelve.
+- **Obra más visible**: capa de la paleta más ligera (0.34 / 0.46 / 0.86 de opacidad arriba/medio/abajo).
+- **Quitar de Seguir viendo**: mantener OK sobre una tarjeta abre el menú; el descarte se recuerda hasta que vuelvas a ver ese título.
+- Los menús modales bloquean el foco del fondo (`LocalFocusEnabled`) y al cerrarse devuelven el foco al elemento anterior (`FocusMemory`).
