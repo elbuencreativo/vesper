@@ -51,4 +51,22 @@ class WatchNextMappingTest {
     fun mapRow_hidesProgressWhenNotStarted() {
         assertNull(mapRow("p", "t", null, 0, 1_000, null)!!.progress)
     }
+
+    @Test
+    fun episodeDetail_includesEpisodeName_forSeries() {
+        assertEquals("T2 · E2 · Song 2 · faltan 5 min", episodeDetail("2", "2", 2_400_000, 2_700_000, "Song 2"))
+        assertEquals("T1 · E4 · faltan 5 min", episodeDetail("1", "4", 2_400_000, 2_700_000, "null"))
+    }
+
+    @Test
+    fun pickLogoPath_prefersSpanishThenEnglishAndSkipsSvg() {
+        val logos = org.json.JSONArray(
+            """[{"file_path":"/a.svg","iso_639_1":"es","vote_average":9},
+                {"file_path":"/b.png","iso_639_1":"en","vote_average":8},
+                {"file_path":"/c.png","iso_639_1":"es","vote_average":1},
+                {"file_path":"/d.png","iso_639_1":null,"vote_average":10}]""",
+        )
+        assertEquals("/c.png", pickLogoPath(logos))
+        assertNull(pickLogoPath(org.json.JSONArray("""[{"file_path":"/x.svg","iso_639_1":"en"}]""")))
+    }
 }

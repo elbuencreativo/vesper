@@ -111,6 +111,20 @@ fun LauncherSettingsScreen(
                     },
                 )
             }
+            item { SectionLabel("SEGUIR VIENDO") }
+            item {
+                val has = com.minimal.tvlauncher.data.LocalLogoRepository.current?.available == true
+                MenuItem(
+                    "Logo del programa: " + if (!has) "no disponible (falta la clave de TMDB)" else if (display.showLogos) "sí" else "no",
+                    { if (has) onDisplay { it.copy(showLogos = !it.showLogos) } },
+                )
+            }
+            item {
+                Label(
+                    "Los logos provienen de TMDB. Este producto usa la API de TMDB pero no está avalado ni certificado por TMDB.",
+                    Modifier.padding(horizontal = 14.dp, vertical = 4.dp), Palette.TextMuted.copy(alpha = 0.7f), 9.sp, maxLines = 2,
+                )
+            }
             item { SectionLabel("SALUDO") }
             item {
                 MenuItem(

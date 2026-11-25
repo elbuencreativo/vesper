@@ -26,6 +26,8 @@ android {
         // Dirección del update.json que consulta "Buscar actualización" (ver tools/publish_update.sh).
         val updateUrl = (project.findProperty("updateUrl") as String?).orEmpty()
         buildConfigField("String", "UPDATE_URL", "\"$updateUrl\"")
+        // Clave de TMDB (logos). Vive en ~/.vesper-signing, fuera del repositorio; sin ella la opción de logos no se ofrece.
+        buildConfigField("String", "TMDB_KEY", "\"${signingProps.getProperty("tmdbKey", "")}\"")
     }
 
     signingConfigs {

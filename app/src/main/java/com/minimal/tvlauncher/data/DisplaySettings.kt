@@ -61,6 +61,8 @@ data class DisplaySettings(
     val themeMode: ThemeMode = ThemeMode.Auto,
     val greetingStyle: GreetingStyle = GreetingStyle.Traditional,
     val appBarStyle: AppBarStyle = AppBarStyle.Icons,
+    /** Logo del programa (TMDB) sobre la tarjeta enfocada de "Seguir viendo". */
+    val showLogos: Boolean = false,
 )
 
 object ThemeLogic {

@@ -144,8 +144,9 @@ class HomeActivity : ComponentActivity() {
 
         val icons = IconCache(applicationContext)
         val posters = PosterLoader(applicationContext)
+        val logoRepo = com.minimal.tvlauncher.data.LogoRepository(applicationContext, BuildConfig.TMDB_KEY)
         setContent {
-            CompositionLocalProvider(LocalIconCache provides remember { icons }, LocalPosterLoader provides remember { posters }) {
+            CompositionLocalProvider(LocalIconCache provides remember { icons }, LocalPosterLoader provides remember { posters }, com.minimal.tvlauncher.data.LocalLogoRepository provides logoRepo) {
                 val idleState by idle.state.collectAsState()
                 // Tema: claro de 6 am a 6 pm, oscuro de 6 pm a 6 am (según la hora del reloj principal), o fijo.
                 LaunchedEffect(vm.display.themeMode, vm.display.primaryCity) {
@@ -227,6 +228,7 @@ class HomeActivity : ComponentActivity() {
                                 primaryCity = Cities.byName(vm.display.primaryCity) ?: Cities.all[0],
                                 secondaryCity = Cities.byName(vm.display.secondaryCity),
                                 appBarStyle = vm.display.appBarStyle,
+                                showLogos = vm.display.showLogos,
                             )
                         }
                     }

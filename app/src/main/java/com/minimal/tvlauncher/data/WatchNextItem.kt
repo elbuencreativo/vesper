@@ -26,13 +26,14 @@ fun mapRow(
     lastEngagementMs: Long = 0,
     season: String? = null,
     episode: String? = null,
+    episodeTitle: String? = null,
 ): WatchNextItem? {
     val cleanTitle = title?.trim().orEmpty()
     if (cleanTitle.isEmpty()) return null
     val progress = if (durationMs > 0) (positionMs.toFloat() / durationMs).coerceIn(0f, 1f) else null
     return WatchNextItem(
         packageName, cleanTitle, posterUri, if (positionMs > 0) progress else null, intentUri, lastEngagementMs,
-        detail = episodeDetail(season, episode, positionMs, durationMs),
+        detail = episodeDetail(season, episode, positionMs, durationMs, episodeTitle),
     )
 }
 
@@ -45,7 +46,7 @@ private fun formatMinutes(ms: Long): String {
  * Línea de detalle de una tarjeta: temporada y episodio (si los hay) y el tiempo que falta.
  * Si aún no se ha empezado, muestra la duración. Devuelve null cuando no hay nada útil que decir.
  */
-fun episodeDetail(season: String?, episode: String?, positionMs: Long, durationMs: Long): String? {
+fun episodeDetail(season: String?, episode: String?, positionMs: Long, durationMs: Long, episodeTitle: String? = null): String? {
     val tag = listOfNotNull(
         season?.trim()?.takeIf { it.isNotEmpty() }?.let { "T$it" },
         episode?.trim()?.takeIf { it.isNotEmpty() }?.let { "E$it" },
@@ -56,5 +57,6 @@ fun episodeDetail(season: String?, episode: String?, positionMs: Long, durationM
         positionMs > 0 -> "faltan ${formatMinutes(durationMs - positionMs)}"
         else -> formatMinutes(durationMs)
     }
-    return listOfNotNull(tag.ifEmpty { null }, time).joinToString(" · ").ifEmpty { null }
+    val name = episodeTitle?.trim()?.takeIf { it.isNotEmpty() && !it.equals("null", true) }
+    return listOfNotNull(tag.ifEmpty { null }, name, time).joinToString(" · ").ifEmpty { null }
 }

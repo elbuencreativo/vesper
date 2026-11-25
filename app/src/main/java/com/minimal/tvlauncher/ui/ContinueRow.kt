@@ -21,11 +21,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -58,6 +60,7 @@ fun ContinueRow(
     memory: FocusMemory,
     modifier: Modifier = Modifier,
     shrink: Boolean = false,
+    showLogos: Boolean = false,
 ) {
     // Tamaño base 5 % menor; con el foco en la barra de apps, todas se reducen un 20 % más.
     val size by androidx.compose.animation.core.animateFloatAsState(if (shrink) 0.8f else 1f, androidx.compose.animation.core.tween(220), label = "cardsSize")
@@ -66,8 +69,26 @@ fun ContinueRow(
             "SEGUIR VIENDO", Modifier.padding(start = 48.dp), Palette.Accent.copy(alpha = 0.85f), 9.sp,
             letterSpacing = 2.sp,
         )
-        Spacer(Modifier.height(0.dp))
+        // Espacio fijo bajo el título de la fila: con una tarjeta enfocada, barra de progreso y episodio / tiempo restante.
+        var focusedCard by remember { androidx.compose.runtime.mutableStateOf<ContinueCard?>(null) }
+        var rowFocused by remember { androidx.compose.runtime.mutableStateOf(false) }
+        Column(Modifier.padding(start = 48.dp, top = 10.dp).height(38.dp)) {
+            val c = focusedCard
+            if (rowFocused && c?.detail != null) {
+                c.progress?.let { p ->
+                    Box(
+                        Modifier.width((LocalConfiguration.current.screenWidthDp * 0.15f).dp).height(2.dp)
+                            .clip(RoundedCornerShape(1.dp)).background(Color(0x33FFFFFF)),
+                    ) {
+                        Box(Modifier.fillMaxHeight().fillMaxWidth(p.coerceIn(0f, 1f)).background(Palette.Accent))
+                    }
+                    Spacer(Modifier.height(6.dp))
+                } ?: Spacer(Modifier.height(8.dp)) // sin barra, el texto queda a la misma altura
+                Label(c.detail, color = Palette.Text.copy(alpha = 0.8f), size = 11.sp)
+            }
+        }
         LazyRow(
+            modifier = Modifier.onFocusChanged { rowFocused = it.hasFocus },
             contentPadding = PaddingValues(horizontal = 48.dp, vertical = 18.dp),
             horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(14.dp),
         ) {
@@ -82,7 +103,8 @@ fun ContinueRow(
                     card,
                     onClick = { onClick(card) },
                     onLongClick = { onMenu(card) },
-                    onFocused = { memory.remember(memoryKey) },
+                    onFocused = { memory.remember(memoryKey); focusedCard = card },
+                    showLogos = showLogos,
                     widthDp = 184f * 0.95f * size,
                     modifier = Modifier.focusRequester(requester),
                 )
@@ -98,6 +120,7 @@ private fun ContinueCardView(
     onLongClick: () -> Unit,
     onFocused: () -> Unit,
     widthDp: Float,
+    showLogos: Boolean,
     modifier: Modifier,
 ) {
     val shape = RoundedCornerShape(8.dp)
@@ -106,6 +129,9 @@ private fun ContinueCardView(
     val icon by produceState<ImageBitmap?>(null, card.packageName) { value = icons.get(card.packageName) }
     val posters = LocalPosterLoader.current
     val poster by produceState<ImageBitmap?>(null, card.posterUri) { value = card.posterUri?.let { posters.load(it) } }
+
+    val logos = com.minimal.tvlauncher.data.LocalLogoRepository.current
+    val logo by produceState<ImageBitmap?>(null, card.title, showLogos) { value = if (showLogos) logos?.get(card.title) else null }
 
     FocusTile(
         shape, modifier.width(widthDp.dp).aspectRatio(16f / 9f),
@@ -123,25 +149,20 @@ private fun ContinueCardView(
                     colorFilter = if (focused) null else WarmMonochrome,
                 )
             }
-            Column(
+            Box(
                 Modifier.align(Alignment.BottomStart).fillMaxWidth()
                     .background(Brush.verticalGradient(listOf(Color.Transparent, Palette.Navy.copy(alpha = 0.85f))))
                     .padding(start = 10.dp, end = 10.dp, top = 14.dp, bottom = 8.dp),
             ) {
-                Label(card.title, color = Palette.Text, size = 11.sp)
-                // Con el foco: barra de progreso (15 % del ancho de pantalla) y bajo ella el episodio y lo que falta.
-                if (focused && card.detail != null) {
-                    card.progress?.let { p ->
-                        Spacer(Modifier.height(5.dp))
-                        Box(
-                            Modifier.width((LocalConfiguration.current.screenWidthDp * 0.15f).dp).height(2.dp)
-                                .clip(RoundedCornerShape(1.dp)).background(Color(0x33FFFFFF)),
-                        ) {
-                            Box(Modifier.fillMaxHeight().fillMaxWidth(p.coerceIn(0f, 1f)).background(Palette.Accent))
-                        }
-                    }
-                    Spacer(Modifier.height(4.dp))
-                    Label(card.detail, color = Palette.Text.copy(alpha = 0.75f), size = 9.sp)
+                // Con el foco y logo disponible, el logo del programa sustituye al título.
+                val l = logo
+                if (focused && l != null) {
+                    Image(
+                        l, card.title, Modifier.height(30.dp).fillMaxWidth(0.7f),
+                        contentScale = ContentScale.Fit, alignment = Alignment.CenterStart,
+                    )
+                } else {
+                    Label(card.title, color = Palette.Text, size = 11.sp)
                 }
             }
         }

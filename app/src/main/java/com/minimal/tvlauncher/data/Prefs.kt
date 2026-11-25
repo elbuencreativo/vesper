@@ -113,6 +113,7 @@ class Prefs(private val store: DataStore<Preferences>) {
             themeMode = p[THEME]?.let { name -> ThemeMode.entries.firstOrNull { it.name == name } } ?: d.themeMode,
             greetingStyle = p[GREETING_STYLE]?.let { name -> GreetingStyle.entries.firstOrNull { it.name == name } } ?: d.greetingStyle,
             appBarStyle = p[APPBAR_STYLE]?.let { name -> AppBarStyle.entries.firstOrNull { it.name == name } } ?: d.appBarStyle,
+            showLogos = p[SHOW_LOGOS] ?: d.showLogos,
         )
     }
 
@@ -127,6 +128,7 @@ class Prefs(private val store: DataStore<Preferences>) {
             it[THEME] = s.themeMode.name
             it[GREETING_STYLE] = s.greetingStyle.name
             it[APPBAR_STYLE] = s.appBarStyle.name
+            it[SHOW_LOGOS] = s.showLogos
         }
     }
 
@@ -152,6 +154,7 @@ class Prefs(private val store: DataStore<Preferences>) {
         private val USE_PROFILE = booleanPreferencesKey("use_profile_name")
         private val GREETING_STYLE = stringPreferencesKey("greeting_style")
         private val APPBAR_STYLE = stringPreferencesKey("appbar_style")
+        private val SHOW_LOGOS = booleanPreferencesKey("show_logos")
         private val THEME = stringPreferencesKey("theme_mode")
         private val ANNOUNCED_UPDATE = intPreferencesKey("announced_update")
     }

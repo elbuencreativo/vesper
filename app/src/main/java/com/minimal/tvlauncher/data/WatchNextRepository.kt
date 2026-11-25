@@ -21,6 +21,7 @@ class WatchNextRepository(private val context: Context) {
             TvContractCompat.WatchNextPrograms.COLUMN_LAST_ENGAGEMENT_TIME_UTC_MILLIS,
             TvContractCompat.WatchNextPrograms.COLUMN_SEASON_DISPLAY_NUMBER,
             TvContractCompat.WatchNextPrograms.COLUMN_EPISODE_DISPLAY_NUMBER,
+            TvContractCompat.WatchNextPrograms.COLUMN_EPISODE_TITLE,
         )
         val sort = "${TvContractCompat.WatchNextPrograms.COLUMN_LAST_ENGAGEMENT_TIME_UTC_MILLIS} DESC"
         try {
@@ -39,6 +40,7 @@ class WatchNextRepository(private val context: Context) {
                             lastEngagementMs = c.getLong(7),
                             season = c.getString(8),
                             episode = c.getString(9),
+                            episodeTitle = c.getString(10),
                         )?.let(::add)
                     }
                 }
