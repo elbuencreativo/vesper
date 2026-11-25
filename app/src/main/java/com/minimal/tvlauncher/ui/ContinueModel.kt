@@ -13,6 +13,8 @@ data class ContinueCard(
     val packageName: String,
     /** Última interacción (ms UTC) o [FALLBACK_ENGAGEMENT] si es una tarjeta de "vistos recientemente". */
     val engagedAt: Long = 0,
+    /** Episodio y tiempo restante, para mostrar con el foco. */
+    val detail: String? = null,
 ) {
     val key: String get() = dismissKey(packageName, title)
 }
@@ -46,7 +48,7 @@ fun buildContinueCards(
     val candidates = watchNext
         .filter { it.packageName.isNotBlank() }
         .distinctBy { it.title.trim().lowercase() }
-        .map { ContinueCard(it.title, null, it.posterUri, it.progress, it.intentUri, it.packageName, it.lastEngagementMs) }
+        .map { ContinueCard(it.title, null, it.posterUri, it.progress, it.intentUri, it.packageName, it.lastEngagementMs, it.detail) }
     // Lo descartado se quita antes de recortar (así entra el siguiente) y, si el sistema sí tenía contenido,
     // no se cae a los "recientes": si descartaste todo, la fila se oculta.
     if (candidates.isNotEmpty()) return filterDismissed(candidates, dismissed).take(cap)

@@ -37,4 +37,18 @@ class WatchNextMappingTest {
         assertNull(mapRow("p", "t", null, 5_000, 0, null)!!.progress)
         assertEquals(1f, mapRow("p", "t", null, 9_000, 3_000, null)!!.progress!!, 0.0001f)
     }
+
+    @Test
+    fun episodeDetail_showsRemainingTimeOrDuration() {
+        assertEquals("T2 · E6 · faltan 27 min", episodeDetail("2", "6", 49_000, 1_665_000))
+        assertEquals("T2 · E1 · 22 min", episodeDetail("2", "1", 0, 1_307_000))
+        assertEquals("1 h 12 min", episodeDetail(null, null, 0, 4_320_000))
+        assertEquals("T1 · E13 · casi terminado", episodeDetail("1", "13", 1_414_000, 1_414_999))
+        assertNull(episodeDetail(null, null, 0, 0))
+    }
+
+    @Test
+    fun mapRow_hidesProgressWhenNotStarted() {
+        assertNull(mapRow("p", "t", null, 0, 1_000, null)!!.progress)
+    }
 }

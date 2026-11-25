@@ -33,6 +33,8 @@ import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -121,19 +123,25 @@ private fun ContinueCardView(
                     colorFilter = if (focused) null else WarmMonochrome,
                 )
             }
-            Box(
+            Column(
                 Modifier.align(Alignment.BottomStart).fillMaxWidth()
                     .background(Brush.verticalGradient(listOf(Color.Transparent, Palette.Navy.copy(alpha = 0.85f))))
                     .padding(start = 10.dp, end = 10.dp, top = 14.dp, bottom = 8.dp),
             ) {
                 Label(card.title, color = Palette.Text, size = 11.sp)
-            }
-            card.progress?.let { p ->
-                Box(
-                    Modifier.align(Alignment.BottomStart).fillMaxWidth().height(2.dp)
-                        .background(Color(0x33FFFFFF)),
-                ) {
-                    Box(Modifier.fillMaxHeight().fillMaxWidth(p.coerceIn(0f, 1f)).background(Palette.Accent))
+                // Con el foco: barra de progreso (15 % del ancho de pantalla) y bajo ella el episodio y lo que falta.
+                if (focused && card.detail != null) {
+                    card.progress?.let { p ->
+                        Spacer(Modifier.height(5.dp))
+                        Box(
+                            Modifier.width((LocalConfiguration.current.screenWidthDp * 0.15f).dp).height(2.dp)
+                                .clip(RoundedCornerShape(1.dp)).background(Color(0x33FFFFFF)),
+                        ) {
+                            Box(Modifier.fillMaxHeight().fillMaxWidth(p.coerceIn(0f, 1f)).background(Palette.Accent))
+                        }
+                    }
+                    Spacer(Modifier.height(4.dp))
+                    Label(card.detail, color = Palette.Text.copy(alpha = 0.75f), size = 9.sp)
                 }
             }
         }
