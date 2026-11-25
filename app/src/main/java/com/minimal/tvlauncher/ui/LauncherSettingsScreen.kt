@@ -27,6 +27,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import com.minimal.tvlauncher.data.Cities
 import com.minimal.tvlauncher.data.City
 import com.minimal.tvlauncher.data.DisplaySettings
+import com.minimal.tvlauncher.data.GreetingStyle
 import com.minimal.tvlauncher.data.ThemeMode
 import com.minimal.tvlauncher.data.greetingNameFor
 import androidx.compose.foundation.layout.height
@@ -103,6 +104,16 @@ fun LauncherSettingsScreen(
                 MenuItem(
                     "Saludo al encender: " + if (display.greetingEnabled) "sí" else "no",
                     { onDisplay { it.copy(greetingEnabled = !it.greetingEnabled) } },
+                )
+            }
+            item {
+                MenuItem(
+                    "Tipo de saludo: " + if (display.greetingStyle == GreetingStyle.Stoic) "cita estoica (al azar)" else "tradicional",
+                    {
+                        onDisplay {
+                            it.copy(greetingStyle = if (it.greetingStyle == GreetingStyle.Stoic) GreetingStyle.Traditional else GreetingStyle.Stoic)
+                        }
+                    },
                 )
             }
             item {

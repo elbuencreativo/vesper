@@ -5,6 +5,9 @@ import java.time.ZonedDateTime
 
 enum class ThemeMode { Auto, Light, Dark }
 
+/** Qué se muestra bajo el Hola: la pregunta tradicional o una frase estoica al azar. */
+enum class GreetingStyle { Traditional, Stoic }
+
 /** Ciudad para los relojes: nombre, país y zona horaria. */
 data class City(val name: String, val country: String, val zoneId: String)
 
@@ -53,6 +56,7 @@ data class DisplaySettings(
     val greetingName: String = "familia",
     val useProfileName: Boolean = false,
     val themeMode: ThemeMode = ThemeMode.Auto,
+    val greetingStyle: GreetingStyle = GreetingStyle.Traditional,
 )
 
 object ThemeLogic {

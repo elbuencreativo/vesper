@@ -5,6 +5,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.UserManager
 import com.minimal.tvlauncher.data.Cities
+import com.minimal.tvlauncher.data.GreetingStyle
+import com.minimal.tvlauncher.data.StoicQuotes
 import com.minimal.tvlauncher.data.ThemeLogic
 import com.minimal.tvlauncher.ui.Greeting
 import com.minimal.tvlauncher.ui.Palette
@@ -97,6 +99,7 @@ class HomeActivity : ComponentActivity() {
     private var messageJob: Job? = null
     private var greetingVisible by mutableStateOf(false)
     private var greetingJob: Job? = null
+    private var greetingLine by mutableStateOf(TRADITIONAL_LINE)
 
     /** Muestra el saludo unos segundos si está activado (los ajustes pueden tardar un instante en cargar). */
     private fun greet() {
@@ -104,6 +107,7 @@ class HomeActivity : ComponentActivity() {
         greetingJob = lifecycleScope.launch {
             delay(900)
             if (!vm.display.greetingEnabled) return@launch
+            greetingLine = if (vm.display.greetingStyle == GreetingStyle.Stoic) StoicQuotes.random(greetingLine) else TRADITIONAL_LINE
             greetingVisible = true
             delay(5_500)
             greetingVisible = false
@@ -247,7 +251,7 @@ class HomeActivity : ComponentActivity() {
                             onDismiss = { cardMenu = null; menuTick++ },
                         )
                     }
-                    Greeting(greetingVisible, greetingNameFor(vm.display, profileName()))
+                    Greeting(greetingVisible, greetingNameFor(vm.display, profileName()), greetingLine)
                     IdleScreen(idleState, art)
                 }
             }
@@ -381,6 +385,7 @@ class HomeActivity : ComponentActivity() {
     private enum class Screen { Home, All, Settings }
 
     private companion object {
+        const val TRADITIONAL_LINE = "¿Qué quieres ver hoy?"
         const val DEFAULT_IDLE_MS = 300_000L
         const val DEFAULT_DARK_MS = 1_200_000L
         const val HEALTHY_AFTER_MS = 8_000L

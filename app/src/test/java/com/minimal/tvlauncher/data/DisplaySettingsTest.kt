@@ -32,3 +32,11 @@ class DisplaySettingsTest {
         assertEquals("Europe/Zurich", Cities.byName("Zúrich")?.zoneId)
     }
 }
+
+class StoicQuotesTest {
+    @Test fun hasFiftyAndAvoidsRepeat() {
+        assertEquals(50, StoicQuotes.all.size)
+        val first = StoicQuotes.all[0]
+        repeat(200) { assertTrue(StoicQuotes.random(first) != first) }
+    }
+}

@@ -7,6 +7,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,7 +25,7 @@ import androidx.compose.ui.unit.sp
 
 /** Saludo de bienvenida: a la izquierda, entre los botones superiores y "Seguir viendo". Entra deslizando y se desvanece. */
 @Composable
-fun Greeting(visible: Boolean, name: String, modifier: Modifier = Modifier) {
+fun Greeting(visible: Boolean, name: String, line: String, modifier: Modifier = Modifier) {
     Box(modifier.fillMaxSize().padding(start = 48.dp), contentAlignment = Alignment.CenterStart) {
         AnimatedVisibility(
             visible,
@@ -35,7 +36,7 @@ fun Greeting(visible: Boolean, name: String, modifier: Modifier = Modifier) {
             Column(horizontalAlignment = Alignment.Start) {
                 Label("Hola, $name", color = Palette.Text, size = 30.sp)
                 Spacer(Modifier.height(6.dp))
-                Label("¿Qué quieres ver hoy?", color = Palette.Accent, size = 14.sp, letterSpacing = 1.sp)
+                Label(line, Modifier.width(460.dp), Palette.Accent, 14.sp, letterSpacing = 0.5.sp, maxLines = 3)
             }
         }
     }

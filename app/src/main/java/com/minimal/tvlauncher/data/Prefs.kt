@@ -111,6 +111,7 @@ class Prefs(private val store: DataStore<Preferences>) {
             greetingName = p[GREETING_NAME] ?: d.greetingName,
             useProfileName = p[USE_PROFILE] ?: d.useProfileName,
             themeMode = p[THEME]?.let { name -> ThemeMode.entries.firstOrNull { it.name == name } } ?: d.themeMode,
+            greetingStyle = p[GREETING_STYLE]?.let { name -> GreetingStyle.entries.firstOrNull { it.name == name } } ?: d.greetingStyle,
         )
     }
 
@@ -123,6 +124,7 @@ class Prefs(private val store: DataStore<Preferences>) {
             it[GREETING_NAME] = s.greetingName
             it[USE_PROFILE] = s.useProfileName
             it[THEME] = s.themeMode.name
+            it[GREETING_STYLE] = s.greetingStyle.name
         }
     }
 
@@ -146,6 +148,7 @@ class Prefs(private val store: DataStore<Preferences>) {
         private val GREETING_ON = booleanPreferencesKey("greeting_on")
         private val GREETING_NAME = stringPreferencesKey("greeting_name")
         private val USE_PROFILE = booleanPreferencesKey("use_profile_name")
+        private val GREETING_STYLE = stringPreferencesKey("greeting_style")
         private val THEME = stringPreferencesKey("theme_mode")
         private val ANNOUNCED_UPDATE = intPreferencesKey("announced_update")
     }

@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -82,14 +83,14 @@ fun AppRow(
                     onDispose { memory.requesters.remove("plus") }
                 }
                 FocusTile(
-                    RoundedCornerShape(12.dp), Modifier.size(48.dp).focusRequester(plusRequester),
+                    CircleShape, Modifier.size(48.dp).focusRequester(plusRequester),
                     onFocusChange = { if (it) { focusedLabel = "Todas las apps"; memory.remember("plus") } },
                     onLongClick = onManage,
                     onClick = onOpenAll,
                 ) { focused ->
                     Canvas(
-                        Modifier.fillMaxSize().background(Palette.Surface.copy(alpha = 0.86f))
-                            .border(1.dp, Palette.Line, RoundedCornerShape(12.dp)).padding(16.dp),
+                        Modifier.fillMaxSize().background(Palette.Surface.copy(alpha = 0.86f), CircleShape)
+                            .border(1.dp, Palette.Line, CircleShape).padding(16.dp),
                     ) {
                         val c = if (focused) Palette.Accent else Palette.TextMuted
                         val w = size.width
