@@ -24,6 +24,7 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
+import com.minimal.tvlauncher.data.AppBarStyle
 import com.minimal.tvlauncher.data.Cities
 import com.minimal.tvlauncher.data.City
 import com.minimal.tvlauncher.data.DisplaySettings
@@ -97,6 +98,17 @@ fun LauncherSettingsScreen(
                 MenuItem(
                     "Reloj secundario: " + (Cities.byName(display.secondaryCity)?.let(::cityLabel) ?: "ninguno"),
                     { picker = Picker.Secondary },
+                )
+            }
+            item { SectionLabel("BARRA DE APPS") }
+            item {
+                MenuItem(
+                    "Estilo: " + if (display.appBarStyle == AppBarStyle.Text) "texto con punto de color" else "iconos",
+                    {
+                        onDisplay {
+                            it.copy(appBarStyle = if (it.appBarStyle == AppBarStyle.Text) AppBarStyle.Icons else AppBarStyle.Text)
+                        }
+                    },
                 )
             }
             item { SectionLabel("SALUDO") }

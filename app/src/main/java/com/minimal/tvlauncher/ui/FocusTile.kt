@@ -43,24 +43,25 @@ fun FocusTile(
     onFocusChange: (Boolean) -> Unit = {},
     onLongClick: (() -> Unit)? = null,
     focusScale: Float = 1.08f,
+    plain: Boolean = false,
     onClick: () -> Unit,
     content: @Composable BoxScope.(focused: Boolean) -> Unit,
 ) {
     var focused by remember { mutableStateOf(false) }
     val press = remember { OkPressTracker() }
     val focusEnabled = LocalFocusEnabled.current
-    val scale by animateFloatAsState(if (focused) focusScale else 1f, tween(180), label = "tileScale")
+    val scale by animateFloatAsState(if (focused && !plain) focusScale else 1f, tween(180), label = "tileScale")
 
     Box(
         modifier
             .graphicsLayer { scaleX = scale; scaleY = scale }
             // Resplandor cálido (naranja de la paleta) solo al enfocar; el contorno es el ámbar de acento.
             .then(
-                if (focused) Modifier.shadow(14.dp, shape, ambientColor = Palette.AccentGlow, spotColor = Palette.AccentGlow)
+                if (focused && !plain) Modifier.shadow(14.dp, shape, ambientColor = Palette.AccentGlow, spotColor = Palette.AccentGlow)
                 else Modifier,
             )
             .clip(shape)
-            .then(if (focused) Modifier.border(2.5.dp, Palette.Focus, shape) else Modifier)
+            .then(if (focused && !plain) Modifier.border(2.5.dp, Palette.Focus, shape) else Modifier)
             .onKeyEvent { e ->
                 val k = e.nativeKeyEvent
                 if (k.keyCode !in CONFIRM_KEYS) return@onKeyEvent false

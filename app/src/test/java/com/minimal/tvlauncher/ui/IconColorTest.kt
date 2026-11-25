@@ -45,4 +45,18 @@ class IconColorTest {
         assertEquals(0xFF645646.toInt(), warmMono(0xFF646464.toInt())) // gris 100 -> (100, 86, 70)
         assertEquals(0xFF000000.toInt(), warmMono(0xFF000000.toInt()))
     }
+
+    @Test
+    fun brandColor_picksTheVividHueOverDarkBackground() {
+        val pixels = IntArray(100) { 0xFF000000.toInt() }
+        for (i in 0 until 30) pixels[i] = 0xFFE50914.toInt() // rojo tipo Netflix sobre negro
+        val c = brandColor(pixels, 10, 10)!!
+        assertEquals(true, ((c shr 16) and 0xFF) > 180 && (c and 0xFF) < 80)
+    }
+
+    @Test
+    fun brandColor_isNullForMonochromeIcons() {
+        assertEquals(null, brandColor(IntArray(100) { 0xFFFFFFFF.toInt() }, 10, 10))
+        assertEquals(null, brandColor(IntArray(100) { 0xFF202020.toInt() }, 10, 10))
+    }
 }

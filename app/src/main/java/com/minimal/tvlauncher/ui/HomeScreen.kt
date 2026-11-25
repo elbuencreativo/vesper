@@ -45,6 +45,7 @@ fun HomeScreen(
     message: String? = null,
     primaryCity: com.minimal.tvlauncher.data.City = com.minimal.tvlauncher.data.Cities.all[0],
     secondaryCity: com.minimal.tvlauncher.data.City? = null,
+    appBarStyle: com.minimal.tvlauncher.data.AppBarStyle = com.minimal.tvlauncher.data.AppBarStyle.Icons,
 ) {
     // Conserva el último texto para que el aviso no quede vacío mientras se desvanece.
     val lastMessage = remember { androidx.compose.runtime.mutableStateOf("") }
@@ -83,7 +84,7 @@ fun HomeScreen(
                 ContinueRow(cards, cardFocus, onCard, onCardMenu, memory, shrink = inApps)
             }
             AppRow(
-                apps.row, appFocus, onLaunch, onClose, onOpenAll, onManage, memory,
+                apps.row, appFocus, onLaunch, onClose, onOpenAll, onManage, memory, appBarStyle,
                 Modifier.padding(bottom = 14.dp).onFocusChanged { if (!focusBlocked) inApps = it.hasFocus },
             )
         }

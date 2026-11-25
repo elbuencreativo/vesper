@@ -8,6 +8,9 @@ enum class ThemeMode { Auto, Light, Dark }
 /** Qué se muestra bajo el Hola: la pregunta tradicional o una frase estoica al azar. */
 enum class GreetingStyle { Traditional, Stoic }
 
+/** Cómo se dibuja la barra de apps: iconos o solo texto con punto de color. */
+enum class AppBarStyle { Icons, Text }
+
 /** Ciudad para los relojes: nombre, país y zona horaria. */
 data class City(val name: String, val country: String, val zoneId: String)
 
@@ -57,6 +60,7 @@ data class DisplaySettings(
     val useProfileName: Boolean = false,
     val themeMode: ThemeMode = ThemeMode.Auto,
     val greetingStyle: GreetingStyle = GreetingStyle.Traditional,
+    val appBarStyle: AppBarStyle = AppBarStyle.Icons,
 )
 
 object ThemeLogic {

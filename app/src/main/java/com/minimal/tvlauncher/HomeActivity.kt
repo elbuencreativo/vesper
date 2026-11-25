@@ -226,6 +226,7 @@ class HomeActivity : ComponentActivity() {
                                 message = message,
                                 primaryCity = Cities.byName(vm.display.primaryCity) ?: Cities.all[0],
                                 secondaryCity = Cities.byName(vm.display.secondaryCity),
+                                appBarStyle = vm.display.appBarStyle,
                             )
                         }
                     }

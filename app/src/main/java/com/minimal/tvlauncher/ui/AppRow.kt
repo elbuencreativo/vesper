@@ -10,6 +10,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -51,15 +54,19 @@ fun AppRow(
     onOpenAll: () -> Unit,
     onManage: () -> Unit,
     memory: FocusMemory,
+    style: com.minimal.tvlauncher.data.AppBarStyle = com.minimal.tvlauncher.data.AppBarStyle.Icons,
     modifier: Modifier = Modifier,
 ) {
+    val textStyle = style == com.minimal.tvlauncher.data.AppBarStyle.Text
     var focusedLabel by remember { mutableStateOf("") }
     Column(modifier) {
         Label("APPS", Modifier.padding(start = 48.dp), Palette.Accent.copy(alpha = 0.85f), 9.sp, letterSpacing = 2.sp)
         Spacer(Modifier.height(0.dp))
         LazyRow(
+            // En texto la fila termina antes del reloj (abajo a la derecha) y se desplaza si no cabe.
+            modifier = if (textStyle) Modifier.padding(end = 200.dp) else Modifier,
             contentPadding = PaddingValues(horizontal = 48.dp, vertical = 18.dp),
-            horizontalArrangement = Arrangement.spacedBy(14.dp),
+            horizontalArrangement = Arrangement.spacedBy(if (textStyle) 26.dp else 14.dp),
         ) {
             items(apps, key = { it.packageName }) { app ->
                 val memoryKey = "a:${app.packageName}"
@@ -68,7 +75,13 @@ fun AppRow(
                     memory.requesters[memoryKey] = requester
                     onDispose { memory.requesters.remove(memoryKey) }
                 }
-                AppTile(
+                if (textStyle) TextAppTile(
+                    app,
+                    onFocus = { focusedLabel = ""; memory.remember(memoryKey) }, // el nombre ya está en el texto
+                    onLaunch = { onLaunch(app) },
+                    onClose = { onClose(app) },
+                    modifier = Modifier.focusRequester(requester),
+                ) else AppTile(
                     app,
                     onFocus = { focusedLabel = app.label; memory.remember(memoryKey) },
                     onLaunch = { onLaunch(app) },
@@ -125,5 +138,44 @@ private fun AppTile(
     ) { focused ->
         // El marco redondeado se pinta del color de fondo del icono: una sola pieza, sin doble marco.
         AppIconBox(icon, lit = focused, modifier = Modifier.fillMaxSize().border(1.dp, Palette.Line, RoundedCornerShape(12.dp)))
+    }
+}
+
+/** Estilo texto: punto del color de la marca + nombre; el foco lo marca un subrayado del mismo color. */
+@Composable
+private fun TextAppTile(
+    app: AppEntry,
+    onFocus: () -> Unit,
+    onLaunch: () -> Unit,
+    onClose: () -> Unit,
+    modifier: Modifier,
+) {
+    val icons = LocalIconCache.current
+    val icon by produceState<AppIcon?>(null, app.packageName) { value = icons.getAppIcon(app.packageName) }
+    val brand = icon?.brand?.let { androidx.compose.ui.graphics.Color(it) } ?: Palette.Accent
+    FocusTile(
+        RoundedCornerShape(6.dp), modifier.height(52.dp),
+        onFocusChange = { if (it) onFocus() },
+        onLongClick = onClose,
+        onClick = onLaunch,
+        plain = true,
+    ) { focused ->
+        Column(
+            Modifier.width(androidx.compose.foundation.layout.IntrinsicSize.Max).fillMaxHeight().padding(horizontal = 6.dp),
+            verticalArrangement = Arrangement.Center,
+        ) {
+            androidx.compose.foundation.layout.Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(Modifier.size(7.dp).background(brand, CircleShape))
+                Spacer(Modifier.size(8.dp))
+                Label(
+                    app.label,
+                    color = if (focused) Palette.Text else Palette.Text.copy(alpha = 0.6f),
+                    size = 17.sp,
+                    weight = if (focused) androidx.compose.ui.text.font.FontWeight.Medium else androidx.compose.ui.text.font.FontWeight.Normal,
+                )
+            }
+            Spacer(Modifier.height(5.dp))
+            Box(Modifier.height(2.dp).fillMaxWidth().background(if (focused) brand else androidx.compose.ui.graphics.Color.Transparent))
+        }
     }
 }
