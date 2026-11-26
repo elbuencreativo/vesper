@@ -20,23 +20,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-/** Saludo de bienvenida: a la izquierda, entre los botones superiores y "Seguir viendo". Entra deslizando y se desvanece. */
+/** Saludo de bienvenida: a la derecha (a la izquierda va el logo del programa), entre los botones superiores y "Seguir viendo". Entra deslizando y se desvanece. */
 @Composable
 fun Greeting(visible: Boolean, name: String, line: String, modifier: Modifier = Modifier) {
-    Box(modifier.fillMaxSize().padding(start = 48.dp), contentAlignment = Alignment.CenterStart) {
+    Box(modifier.fillMaxSize().padding(end = 48.dp), contentAlignment = Alignment.CenterEnd) {
         AnimatedVisibility(
             visible,
             Modifier.offset(y = (-100).dp),
-            enter = fadeIn(tween(700)) + slideInHorizontally(tween(700)) { -it / 6 },
-            exit = fadeOut(tween(600)) + slideOutHorizontally(tween(600)) { -it / 6 },
+            enter = fadeIn(tween(700)) + slideInHorizontally(tween(700)) { it / 6 },
+            exit = fadeOut(tween(600)) + slideOutHorizontally(tween(600)) { it / 6 },
         ) {
-            Column(horizontalAlignment = Alignment.Start) {
-                Label("Hola, $name", color = Palette.Text, size = 30.sp)
+            Column(horizontalAlignment = Alignment.End) {
+                Label("Hola, $name", color = Palette.Text, size = 30.sp, textAlign = TextAlign.End)
                 Spacer(Modifier.height(6.dp))
-                Label(line, Modifier.width(460.dp), Palette.Accent, 14.sp, letterSpacing = 0.5.sp, maxLines = 3)
+                Label(line, Modifier.width(460.dp), Palette.Accent, 14.sp, letterSpacing = 0.5.sp, maxLines = 3, textAlign = TextAlign.End)
             }
         }
     }
