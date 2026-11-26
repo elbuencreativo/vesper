@@ -65,6 +65,8 @@ data class DisplaySettings(
     val showLogos: Boolean = false,
     /** Póster del contenido en cada tarjeta de "Seguir viendo"; apagado, solo icono del app y título. */
     val showPosters: Boolean = true,
+    /** Tarjeta con el último juego de PlayStation, arriba a la derecha. */
+    val showPsn: Boolean = true,
 )
 
 object ThemeLogic {

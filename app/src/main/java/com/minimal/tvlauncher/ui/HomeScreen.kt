@@ -48,6 +48,7 @@ fun HomeScreen(
     appBarStyle: com.minimal.tvlauncher.data.AppBarStyle = com.minimal.tvlauncher.data.AppBarStyle.Icons,
     showLogos: Boolean = false,
     showPosters: Boolean = true,
+    showPsn: Boolean = false,
 ) {
     // Conserva el último texto para que el aviso no quede vacío mientras se desvanece.
     val lastMessage = remember { androidx.compose.runtime.mutableStateOf("") }
@@ -92,12 +93,13 @@ fun HomeScreen(
         }
         }
         // Reloj abajo a la derecha, centrado con la barra de apps.
+        if (showPsn) PsnCard(Modifier.align(Alignment.TopEnd).padding(end = 48.dp, top = 21.dp))
         DualClock(primaryCity, secondaryCity, Modifier.align(Alignment.BottomEnd).padding(end = 48.dp, bottom = 47.dp))
         AnimatedVisibility(
             visible = message != null,
             enter = fadeIn(tween(180)),
             exit = fadeOut(tween(260)),
-            modifier = Modifier.align(Alignment.TopEnd).padding(end = 48.dp, top = 34.dp),
+            modifier = Modifier.align(Alignment.TopCenter).padding(top = 34.dp),
         ) {
             Box(
                 Modifier.clip(RoundedCornerShape(20.dp)).background(Palette.SurfaceHigh)

@@ -43,8 +43,7 @@ fun TopBar(onAction: (QuickAction) -> Unit, modifier: Modifier = Modifier, atten
                 FocusTile(CircleShape, Modifier.size(30.dp), onClick = { onAction(action) }) { focused ->
                     Box(
                         Modifier.fillMaxSize()
-                            .background(Palette.Surface.copy(alpha = 0.7f), CircleShape)
-                            .border(1.dp, Palette.Line, CircleShape),
+                            .background(Palette.Surface.copy(alpha = 0.7f), CircleShape),
                         contentAlignment = Alignment.Center,
                     ) {
                         QuickIcon(action, if (focused) Palette.Accent else Palette.TextMuted, 15.dp)

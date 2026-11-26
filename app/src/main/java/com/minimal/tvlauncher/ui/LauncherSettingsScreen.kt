@@ -131,6 +131,19 @@ fun LauncherSettingsScreen(
                     Modifier.padding(horizontal = 14.dp, vertical = 4.dp), Palette.TextMuted.copy(alpha = 0.7f), 9.sp, maxLines = 2,
                 )
             }
+            item { SectionLabel("PLAYSTATION") }
+            item {
+                MenuItem(
+                    "Tarjeta de PlayStation: " + if (display.showPsn) "sí" else "no",
+                    { onDisplay { it.copy(showPsn = !it.showPsn) } },
+                )
+            }
+            item {
+                Label(
+                    "Muestra tu usuario y el último juego jugado. Necesita tu sesión de PlayStation enviada por ADB; si no hay conexión, la tarjeta se oculta.",
+                    Modifier.padding(horizontal = 14.dp, vertical = 4.dp), Palette.TextMuted.copy(alpha = 0.7f), 9.sp, maxLines = 2,
+                )
+            }
             item { SectionLabel("SALUDO") }
             item {
                 MenuItem(
