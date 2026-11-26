@@ -75,7 +75,7 @@ fun ContinueRow(
             val logo by produceState<ImageBitmap?>(null, name, rowFocused) {
                 value = if (rowFocused && name != null) logos?.get(name) else null
             }
-            Box(Modifier.padding(start = 48.dp, bottom = 10.dp).height(40.dp).fillMaxWidth(0.2f), contentAlignment = Alignment.CenterStart) {
+            Box(Modifier.padding(start = 48.dp, bottom = 10.dp).height(80.dp).fillMaxWidth(0.4f), contentAlignment = Alignment.CenterStart) {
                 logo?.let {
                     Image(it, name, Modifier.fillMaxSize(), contentScale = ContentScale.Fit, alignment = Alignment.CenterStart)
                 }
