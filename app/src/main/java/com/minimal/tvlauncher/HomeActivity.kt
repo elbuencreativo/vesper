@@ -58,6 +58,7 @@ import com.minimal.tvlauncher.ui.HomeScreen
 import com.minimal.tvlauncher.ui.IconCache
 import com.minimal.tvlauncher.ui.IdleScreen
 import com.minimal.tvlauncher.ui.LauncherSettingsScreen
+import com.minimal.tvlauncher.ui.RemoteSettingsScreen
 import com.minimal.tvlauncher.ui.OptionsMenu
 import com.minimal.tvlauncher.ui.LocalIconCache
 import com.minimal.tvlauncher.ui.LocalPosterLoader
@@ -195,6 +196,12 @@ class HomeActivity : ComponentActivity() {
                                 onUninstall = actions::uninstall,
                                 onBack = { screen = Screen.Home },
                             )
+                            Screen.Remote -> RemoteSettingsScreen(
+                                apps = vm.apps.all,
+                                serviceActive = homeKeyActive,
+                                onFixService = { if (!shortcuts.open(Shortcut.Accessibility)) flash("No se pudo abrir Accesibilidad") },
+                                onBack = { screen = Screen.Settings },
+                            )
                             Screen.Settings -> LauncherSettingsScreen(
                                 hiddenCount = vm.apps.hiddenEntries.size,
                                 versionName = BuildConfig.VERSION_NAME,
@@ -207,6 +214,7 @@ class HomeActivity : ComponentActivity() {
                                 updateBusy = vm.updateBusy,
                                 onCheckUpdate = vm::checkForUpdate,
                                 onInstallUpdate = vm::installUpdate,
+                                onOpenRemote = { screen = Screen.Remote },
                                 display = vm.display,
                                 profileName = profileName(),
                                 onDisplay = vm::updateDisplay,
@@ -388,7 +396,7 @@ class HomeActivity : ComponentActivity() {
         guard.markHealthy()
     }
 
-    private enum class Screen { Home, All, Settings }
+    private enum class Screen { Home, All, Settings, Remote }
 
     private companion object {
         const val TRADITIONAL_LINE = "¿Qué quieres ver hoy?"

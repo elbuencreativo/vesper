@@ -32,3 +32,21 @@ class PsnTest {
         assertNull(codeFromLocation(null))
     }
 }
+
+class RemoteKeysTest {
+    private val k = com.minimal.tvlauncher.actions.RemoteKeys
+
+    @Test fun idsAndStorageRoundTrip() {
+        assertEquals("k5", k.keyId(5, 99))
+        assertEquals("s99", k.keyId(0, 99))
+        val m = mapOf("k5" to "a.b", "s99" to "c.d")
+        assertEquals(m, k.parse(k.serialize(m)))
+        assertEquals(emptyMap<String, String>(), k.parse(null))
+    }
+
+    @Test fun navigationKeysAreNeverAssignable() {
+        assertEquals(false, k.isAssignable(android.view.KeyEvent.KEYCODE_DPAD_CENTER))
+        assertEquals(false, k.isAssignable(android.view.KeyEvent.KEYCODE_BACK))
+        assertEquals(true, k.isAssignable(android.view.KeyEvent.KEYCODE_PROG_RED))
+    }
+}

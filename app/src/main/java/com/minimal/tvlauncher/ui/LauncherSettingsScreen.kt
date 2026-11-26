@@ -58,6 +58,7 @@ fun LauncherSettingsScreen(
     updateBusy: Boolean,
     onCheckUpdate: () -> Unit,
     onInstallUpdate: () -> Unit,
+    onOpenRemote: () -> Unit,
     display: DisplaySettings,
     profileName: String?,
     onDisplay: ((DisplaySettings) -> DisplaySettings) -> Unit,
@@ -90,6 +91,8 @@ fun LauncherSettingsScreen(
                 )
             }
             updateStatus?.let { item { Label(it, Modifier.padding(horizontal = 14.dp), Palette.Accent, 11.sp, maxLines = 3) } }
+            item { SectionLabel("CONTROL") }
+            item { MenuItem("Ajustes del control remoto", onOpenRemote) }
             item { SectionLabel("RELOJES") }
             item {
                 MenuItem("Reloj principal: ${cityLabel(Cities.byName(display.primaryCity))}", { picker = Picker.Primary })

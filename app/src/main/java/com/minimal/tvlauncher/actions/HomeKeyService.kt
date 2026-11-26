@@ -48,7 +48,32 @@ class HomeKeyService : AccessibilityService() {
     override fun onKeyEvent(event: KeyEvent): Boolean {
         val decision = homeKeyDecision(event.keyCode, event.action)
         if (decision.openLauncher) openLauncher()
-        return decision.consume
+        if (decision.consume) return true
+        return remoteKey(event)
+    }
+
+    /** Botones de acceso directo del control: en modo "aprender" se entregan al ajuste; si no, abren el app asignado. */
+    private fun remoteKey(event: KeyEvent): Boolean {
+        if (!RemoteKeys.isAssignable(event.keyCode)) return false
+        val id = RemoteKeys.keyId(event.keyCode, event.scanCode)
+        // Un botón recién aprendido: el resto de su pulsación (repeticiones y soltada) también se traga,
+        // si no el sistema abriría su app de fábrica al soltarlo.
+        if (id in swallowed) {
+            if (event.action == KeyEvent.ACTION_UP) swallowed.remove(id)
+            return true
+        }
+        RemoteKeys.learning?.let { learn ->
+            if (event.action == KeyEvent.ACTION_DOWN) {
+                swallowed.add(id)
+                if (event.repeatCount == 0) learn(id)
+            }
+            return true
+        }
+        if (!RemoteKeys.isEnabled(this)) return false
+        val pkg = RemoteKeys.load(this)[id] ?: return false
+        val intent = packageManager.getLeanbackLaunchIntentForPackage(pkg) ?: packageManager.getLaunchIntentForPackage(pkg) ?: return false
+        if (event.action == KeyEvent.ACTION_UP) startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        return true
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
@@ -57,6 +82,8 @@ class HomeKeyService : AccessibilityService() {
             openLauncher()
         }
     }
+
+    private val swallowed = HashSet<String>()
 
     override fun onInterrupt() = Unit
 
