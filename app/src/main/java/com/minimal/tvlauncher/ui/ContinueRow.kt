@@ -77,7 +77,8 @@ fun ContinueRow(
             }
             Box(Modifier.padding(start = 48.dp, bottom = 10.dp).height(80.dp).fillMaxWidth(0.4f), contentAlignment = Alignment.CenterStart) {
                 logo?.let {
-                    Image(it, name, Modifier.fillMaxSize(), contentScale = ContentScale.Fit, alignment = Alignment.CenterStart)
+                    Image(it, name, Modifier.fillMaxSize(), contentScale = ContentScale.Fit, alignment = Alignment.CenterStart,
+                        filterQuality = androidx.compose.ui.graphics.FilterQuality.High)
                 }
             }
         }
@@ -103,8 +104,8 @@ fun ContinueRow(
         }
         LazyRow(
             modifier = Modifier.onFocusChanged { rowFocused = it.hasFocus },
-            contentPadding = PaddingValues(start = 48.dp, end = 48.dp, top = 10.dp, bottom = 18.dp),
-            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(14.dp),
+            contentPadding = PaddingValues(start = 48.dp, end = 48.dp, top = 8.5.dp, bottom = 15.dp),
+            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(12.dp),
         ) {
             itemsIndexed(cards, key = { i, c -> "$i:${c.packageName}:${c.title}" }) { i, card ->
                 val memoryKey = "c:${card.key}"
@@ -119,7 +120,7 @@ fun ContinueRow(
                     onLongClick = { onMenu(card) },
                     onFocused = { memory.remember(memoryKey); focusedCard = card },
                     showPosters = showPosters,
-                    widthDp = 184f * 0.95f * size,
+                    widthDp = 184f * 0.95f * 0.85f * size,
                     modifier = Modifier.focusRequester(requester),
                 )
             }
@@ -157,17 +158,18 @@ private fun ContinueCardView(
             if (poster == null) icon?.let {
                 Image(
                     it, null,
-                    Modifier.size(34.dp).align(Alignment.Center),
+                    Modifier.size(29.dp).align(Alignment.Center),
                     alpha = if (focused) 0.95f else 0.55f,
                     colorFilter = if (focused) null else WarmMonochrome,
                 )
             }
-            Box(
+            // Con póster, el título ya está en el logo y en la imagen; solo sin póster se escribe en la tarjeta.
+            if (poster == null) Box(
                 Modifier.align(Alignment.BottomStart).fillMaxWidth()
                     .background(Brush.verticalGradient(listOf(Color.Transparent, Palette.Navy.copy(alpha = 0.85f))))
-                    .padding(start = 10.dp, end = 10.dp, top = 14.dp, bottom = 8.dp),
+                    .padding(start = 8.dp, end = 8.dp, top = 12.dp, bottom = 7.dp),
             ) {
-                Label(card.title, color = Palette.Text, size = 11.sp)
+                Label(card.title, color = Palette.Text, size = 9.5.sp)
             }
         }
     }

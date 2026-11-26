@@ -41,7 +41,7 @@ fun pickLogoPath(logos: JSONArray, originalLanguage: String = "en"): String? {
  * en disco (también guarda "no hay logo" una semana para no repetir la búsqueda). Sin clave o sin red devuelve null.
  */
 class LogoRepository(context: Context, private val apiKey: String) {
-    private val dir = File(context.cacheDir, "logos-orig").apply { mkdirs() }
+    private val dir = File(context.cacheDir, "logos-w500").apply { mkdirs() }
     private val memory = LruCache<String, ImageBitmap>(32)
 
     val available: Boolean get() = apiKey.isNotBlank()
@@ -92,7 +92,7 @@ class LogoRepository(context: Context, private val apiKey: String) {
 
     private companion object {
         const val API = "https://api.themoviedb.org/3"
-        const val IMAGES = "https://image.tmdb.org/t/p/w300"
+        const val IMAGES = "https://image.tmdb.org/t/p/w500"
         const val TIMEOUT_MS = 8_000
         const val NONE_TTL_MS = 7L * 24 * 3600 * 1000
     }
