@@ -11,11 +11,15 @@ const val STOCK_HOME_PACKAGE = "com.google.android.apps.tv.launcherx"
 
 data class HomeKeyDecision(val consume: Boolean, val openLauncher: Boolean)
 
-/** HOME se consume al pulsar y abre el launcher al soltar; el resto de teclas no se tocan. */
+/**
+ * HOME abre el launcher al soltar, pero NO se consume: el sistema debe verla también. Es el sistema quien, al pulsar HOME,
+ * avisa por HDMI-CEC al televisor ("One Touch Play": Active Source) para que cambie a la entrada del Onn.
+ * Si se consumiera, el televisor ya no cambiaría de entrada. El resto de teclas no se tocan.
+ */
 fun homeKeyDecision(keyCode: Int, action: Int): HomeKeyDecision = when {
     keyCode != KeyEvent.KEYCODE_HOME -> HomeKeyDecision(consume = false, openLauncher = false)
-    action == KeyEvent.ACTION_UP -> HomeKeyDecision(consume = true, openLauncher = true)
-    else -> HomeKeyDecision(consume = true, openLauncher = false)
+    action == KeyEvent.ACTION_UP -> HomeKeyDecision(consume = false, openLauncher = true)
+    else -> HomeKeyDecision(consume = false, openLauncher = false)
 }
 
 /**

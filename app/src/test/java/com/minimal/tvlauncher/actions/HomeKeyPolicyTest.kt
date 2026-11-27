@@ -7,9 +7,9 @@ import org.junit.Test
 class HomeKeyPolicyTest {
 
     @Test
-    fun home_isConsumedOnDownAndOpensTheLauncherOnUp() {
-        assertEquals(HomeKeyDecision(consume = true, openLauncher = false), homeKeyDecision(KeyEvent.KEYCODE_HOME, KeyEvent.ACTION_DOWN))
-        assertEquals(HomeKeyDecision(consume = true, openLauncher = true), homeKeyDecision(KeyEvent.KEYCODE_HOME, KeyEvent.ACTION_UP))
+    fun home_isNotConsumedSoTheSystemCanSignalHdmiCec_andOpensTheLauncherOnUp() {
+        assertEquals(HomeKeyDecision(consume = false, openLauncher = false), homeKeyDecision(KeyEvent.KEYCODE_HOME, KeyEvent.ACTION_DOWN))
+        assertEquals(HomeKeyDecision(consume = false, openLauncher = true), homeKeyDecision(KeyEvent.KEYCODE_HOME, KeyEvent.ACTION_UP))
     }
 
     @Test
